@@ -6,7 +6,7 @@ name = "autodj"
 version = "0.0.2"
 edition = "2021"
 authors = ["Maksim Elizarev <elizarev@phystech.edu>","https://djmaxus.github.io/"]
-license = "MIT OR Apache-2.0"
+license = "Apache-2.0"
 description = "Automatic Differentiation Library"
 documentation = "https://docs.rs/autodj"
 
