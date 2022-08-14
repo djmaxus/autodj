@@ -8,7 +8,7 @@ edition = "2021"
 authors = ["Maksim Elizarev <elizarev@phystech.edu>","https://djmaxus.github.io/"]
 license = "Apache-2.0"
 description = "Automatic Differentiation Library"
-documentation = "https://docs.rs/autodj"
+repository = "https://github.com/djmaxus/autodj"
 
 categories = ["mathematics","science","simulation"]
 
