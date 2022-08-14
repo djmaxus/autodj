@@ -1,0 +1,39 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+# publish = false
+name = "autodj"
+version = "0.0.2"
+edition = "2021"
+authors = ["Maksim Elizarev <elizarev@phystech.edu>","https://djmaxus.github.io/"]
+license = "MIT OR Apache-2.0"
+description = "Automatic Differentiation Library"
+documentation = "https://docs.rs/autodj"
+
+categories = ["mathematics","science","simulation"]
+
+keywords = [
+    "automatic",
+    "derivative",
+    "jacobian",
+    "dual-number",
+    "comp-math",
+]
+
+[lib]
+name = "autodj"
+test = true
+doctest = true
+doc = true
+crate-type = ["lib"]
+
+#[dependencies.uuid]
+# version = ">=1.1.2"
+# features = [
+#     "v4",                # Lets you generate random UUIDs
+#     "fast-rng",          # Use a faster (but still sufficiently random) RNG
+#     "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+# ]
+
+[dev-dependencies]
+#rand = ">=0.8.5"
