@@ -3,7 +3,7 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.0.3"
+version = "0.1.0"
 edition = "2021"
 authors = ["Maksim Elizarev <maxim.elizarev.research@gmail.com>", "https://djmaxus.github.io/"]
 license = "Apache-2.0"
