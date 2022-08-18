@@ -1,99 +1,198 @@
 //! # AUTOmatic Derivatives & Jacobians
 //! pre-alpha publication trial
+//! ```
+//! ```
 
-pub struct DualNumber{
-    val: f64,
-    eps: f64,
+use std::{
+    fmt::Debug,
+    ops::{Add, Div, Mul, Neg, Sub},
+};
+
+/// Dual numbers as mathematical basis
+#[derive(Debug, PartialEq, Clone, Copy)]
+pub struct Dual {
+    pub val: f64,
+    pub dual: f64,
 }
 
-impl DualNumber{
-    pub fn one() -> Self{
-        Self{val: 1.0, eps: 0.0}
+/// Constructors
+impl Dual {
+    pub fn num(val: f64, dual: f64) -> Self {
+        Self { val, dual }
     }
-    pub fn zero() -> Self{
-        Self{val: 1.0, eps: 0.0}
+    pub fn var(val: f64) -> Self {
+        Self::num(val, 1.)
     }
-    fn from_deriv(&self, val: f64, deriv: f64) -> Self{
-        Self{val, eps: self.eps * deriv}
+    pub fn par(val: f64) -> Self {
+        Self::num(val, 0.)
     }
 }
 
-/// binary operations
-impl DualNumber{
-    pub fn add(self, rhs: Self) ->Self{
+/// Utilities
+impl Dual {
+    /// Apply arbitrary function-derivative pair to a dual number.
+    /// May be used to extend the provided set of functions
+    /// ```
+    /// trait OpsExtended{
+    ///     fn powi(self, n: i32) -> Self;
+    /// }
+    ///
+    /// use autodj::Dual;
+    ///
+    /// impl OpsExtended for Dual {
+    ///     fn powi(self, n: i32) -> Self {
+    ///         self.apply(
+    ///             |x| x.powi(n),//
+    ///             |x| x.powi(n - 1) * (n as f64)
+    ///         )
+    ///     }
+    /// }
+    ///
+    /// let x = Dual::var(std::f64::consts::PI);
+    /// let n = 2;
+    /// let f = x.powi(n);
+    /// ```
+    pub fn apply<F, D>(self, func: F, deriv: D) -> Self
+    where
+        F: Fn(f64) -> f64,
+        D: Fn(f64) -> f64,
+    {
+        Self {
+            val: func(self.val),
+            dual: self.dual * deriv(self.val),
+        }
+    }
+
+    fn chain_of(self, val: f64, deriv: f64) -> Self {
+        Self {
+            val,
+            dual: deriv * self.dual,
+        }
+    }
+}
+
+/// basic arithmetic
+impl Dual {
+    fn add(self, rhs: Self) -> Self {
         let val = self.val + rhs.val;
-        let eps = self.eps + rhs.eps;
-        Self{val, eps}
+        let dual = self.dual + rhs.dual;
+        Self { val, dual }
     }
 
-    pub fn sub(self, rhs: Self) ->Self{
+    fn sub(self, rhs: Self) -> Self {
         let val = self.val - rhs.val;
-        let eps = self.eps - rhs.eps;
-        Self{val, eps}
+        let dual = self.dual - rhs.dual;
+        Self { val, dual }
     }
 
-    pub fn mul(self, rhs: Self) ->Self{
+    fn mul(self, rhs: Self) -> Self {
         let val = self.val * rhs.val;
-        let eps = self.eps *  rhs.val
-                +  rhs.eps * self.val;
-                Self{val, eps}
-    }
-    pub fn div(self, rhs: Self) ->Self{
-        let val = self.val / rhs.val;
-        let eps = (self.eps *  rhs.val
-                -   rhs.eps * self.val) / (rhs.val *  rhs.val);
-                Self{val, eps}
+        let dual = self.dual * rhs.val + rhs.dual * self.val;
+        Self { val, dual }
     }
 
+    fn div(self, rhs: Self) -> Self {
+        let val = self.val / rhs.val;
+        let dual = (self.dual * rhs.val - rhs.dual * self.val) / (rhs.val * rhs.val);
+        Self { val, dual }
+    }
+
+    fn neg(self) -> Self {
+        Self {
+            val: -self.val,
+            dual: -self.dual,
+        }
+    }
 }
 
-/// unary functions
-impl DualNumber{
-    pub fn neg(self) ->Self{
-        Self{val : -self.val, eps: - self.eps}
+/// commonly used functions
+impl Dual {
+    pub fn powf(self, p: f64) -> Self {
+        self.apply(
+            |x| x.powf(p), //
+            |x| x.powf(p - 1.) * p,
+        )
     }
 
-    pub fn pow(self, p: f64) ->Self{
-        let val = self.val.powf(p);
-        let deriv = p * self.val.powf(p-1.);
-        self.from_deriv(val, deriv)
-    }
-
-    pub fn sin(self) ->Self{
+    pub fn sin(self) -> Self {
         let (sin, cos) = self.val.sin_cos();
-        self.from_deriv(sin, cos)
+        self.chain_of(sin, cos)
     }
 
-    pub fn cos(self) ->Self{
+    pub fn cos(self) -> Self {
         let (sin, cos) = self.val.sin_cos();
-        self.from_deriv(cos, -sin)
+        self.chain_of(cos, -sin)
     }
 
-    pub fn sin_cos(self) ->(Self, Self) {
+    pub fn sin_cos(self) -> (Self, Self) {
         let (sin, cos) = self.val.sin_cos();
-        (self.from_deriv(sin, cos), self.from_deriv(cos, -sin))
+        (self.chain_of(sin, cos), self.chain_of(cos, -sin))
     }
 
-    pub fn exp(self) ->Self{
+    pub fn exp(self) -> Self {
         let val = self.val.exp();
-        self.from_deriv(val,val)
+        self.chain_of(val, val)
     }
 
-    pub fn ln(self) ->Self{
-        let val = self.val.ln();
-        let deriv = 1. / self.val;
-        self.from_deriv(val, deriv)
+    pub fn ln(self) -> Self {
+        self.apply(
+            |x| x.ln(), //
+            |x| 1. / x,
+        )
     }
 
-    pub fn abs(self) ->Self{
-        let val = self.val.abs();
-        let deriv = self.val.signum();
-        self.from_deriv(val,deriv)
+    pub fn abs(self) -> Self {
+        self.apply(
+            |x| x.abs(), //
+            |x| x.signum(),
+        )
     }
 
-    pub fn signum(self) ->Self{
-        let val = self.val.signum();
-        self.from_deriv(val,0.0)
+    pub fn signum(self) -> Self {
+        self.apply(
+            |x| x.signum(), //
+            |_| 0.,
+        )
+    }
+}
+
+impl Add for Dual {
+    type Output = Dual;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        self.add(rhs)
+    }
+}
+
+impl Sub for Dual {
+    type Output = Dual;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self.sub(rhs)
+    }
+}
+
+impl Mul for Dual {
+    type Output = Dual;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        self.mul(rhs)
+    }
+}
+
+impl Div for Dual {
+    type Output = Dual;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        self.div(rhs)
+    }
+}
+
+impl Neg for Dual {
+    type Output = Dual;
+
+    fn neg(self) -> Self::Output {
+        self.neg()
     }
 }
 
@@ -101,6 +200,5 @@ impl DualNumber{
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
-    }
+    fn test() {}
 }
