@@ -30,7 +30,7 @@ impl Dual {
 
 /// Utilities
 impl Dual {
-    /// Apply arbitrary function-derivative pair to a dual number.
+    /// Apply custom function-derivative pair to a dual number.
     /// May be used to extend the provided set of functions
     /// ```
     /// trait OpsExtended{
@@ -41,7 +41,7 @@ impl Dual {
     ///
     /// impl OpsExtended for Dual {
     ///     fn powi(self, n: i32) -> Self {
-    ///         self.apply(
+    ///         self.custom(
     ///             |x| x.powi(n),//
     ///             |x| x.powi(n - 1) * (n as f64)
     ///         )
@@ -52,7 +52,7 @@ impl Dual {
     /// let n = 2;
     /// let f = x.powi(n);
     /// ```
-    pub fn apply<F, D>(self, func: F, deriv: D) -> Self
+    pub fn custom<F, D>(self, func: F, deriv: D) -> Self
     where
         F: Fn(f64) -> f64,
         D: Fn(f64) -> f64,
@@ -108,7 +108,7 @@ impl Dual {
 /// commonly used functions
 impl Dual {
     pub fn powf(self, p: f64) -> Self {
-        self.apply(
+        self.custom(
             |x| x.powf(p), //
             |x| x.powf(p - 1.) * p,
         )
@@ -135,21 +135,21 @@ impl Dual {
     }
 
     pub fn ln(self) -> Self {
-        self.apply(
+        self.custom(
             |x| x.ln(), //
             |x| 1. / x,
         )
     }
 
     pub fn abs(self) -> Self {
-        self.apply(
+        self.custom(
             |x| x.abs(), //
             |x| x.signum(),
         )
     }
 
     pub fn signum(self) -> Self {
-        self.apply(
+        self.custom(
             |x| x.signum(), //
             |_| 0.,
         )
