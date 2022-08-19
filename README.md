@@ -1,14 +1,14 @@
-by [djmaxus](https://djmaxus.github.io/)
-
-[![crates.io](https://img.shields.io/crates/v/autodj.svg)](https://crates.io/crates/autodj)
-[![docs](https://docs.rs/autodj/badge.svg)]()
-[![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/djmaxus/autodj/)
-
 # Automatic Differentiation Library
 
-**AUTO**matic **D**erivatives & **J**acobians
+[![crates.io](https://img.shields.io/crates/v/autodj.svg)](https://crates.io/crates/autodj)
+[![docs](https://docs.rs/autodj/badge.svg)](https://docs.rs/autodj/)
+[![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg)](https://github.com/djmaxus/autodj/)
+[![rust-clippy analyze](https://github.com/djmaxus/autodj/actions/workflows/rust-clippy.yml/badge.svg)](https://github.com/djmaxus/autodj/actions/workflows/rust-clippy.yml)
+
+**AUTO**matic **D**erivatives & **J**acobians by [djmaxus](https://djmaxus.github.io/)
 
 ## Contents
+
 - [Automatic Differentiation Library](#automatic-differentiation-library)
   - [Contents](#contents)
   - [About](#about)
@@ -21,7 +21,7 @@ by [djmaxus](https://djmaxus.github.io/)
 
 For the living (and for my heart),
 I do research & development in the area of computational mathematics
-and wrote a whole bunch of sophisticated Jacobians *by hand*.
+and wrote a whole bunch of sophisticated Jacobians _by hand_.
 
 One day, I learned about automatic differentiation based on dual numbers.
 Almost the same day, I learned about Rust as well :crab:
@@ -32,9 +32,9 @@ Almost the same day, I learned about Rust as well :crab:
 
 ## Project goals
 
-* Develop open-source automatic differentiation library
-  for both *academic* and *commercial* computational mathematitians
-* Gain experience of Rust programming
+- Develop open-source automatic differentiation library
+  for both _academic_ and _commercial_ computational mathematitians
+- Gain experience of Rust programming
 
 ## Roadmap (sort of)
 
