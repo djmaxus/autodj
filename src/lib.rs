@@ -1,8 +1,3 @@
-//! # AUTOmatic Derivatives & Jacobians
-//! pre-alpha publication trial
-//! ```
-//! ```
-
 use std::{
     fmt::Debug,
     ops::{Add, Div, Mul, Neg, Sub},
