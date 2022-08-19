@@ -38,24 +38,24 @@ Almost the same day, I learned about Rust as well :crab:
 
 ## Anticipated features
 
-* [x] Basic dual arithmetics as standalone feature
-* Number of variables
-  * [ ] single
-  * multiple
-    * [ ] static
-    * [ ] dynamic
-* [ ] Calculation tracking (partial derivatives of intermediate values)
-* Third-party crates support (as features)
-  * [ ] `num`
-  * [ ] linear algebra crates
-* Advanced features
-  * [ ] Inter-operability of different dual types (e.g., single and multiple dynamic)
-  * [ ] Arbitrary type of dual number components
-  * [ ] Rust-alike safety of interfaces
+- [x] Basic dual arithmetics as standalone feature
+- Number of variables
+  - [ ] single
+  - multiple
+    - [ ] static
+    - [ ] dynamic
+- [ ] Calculation tracking (partial derivatives of intermediate values)
+- Third-party crates support (as features)
+  - [ ] `num`
+  - [ ] linear algebra crates
+- Advanced features
+  - [ ] Inter-operability of different dual types (e.g., single and multiple dynamic)
+  - [ ] Arbitrary type of dual number components
+  - [ ] Rust-alike safety of interfaces
 
     e.g., `Fn(_) -> Result` for binary operations and UUID-based tracking of variables
-  * [ ] Numerical verification (or replacement) of derivatives (by definition)
-  * [ ] Macro for automatic extensions of regular (i.e. non-dual) functions
-  * [ ] no `std`
+  - [ ] Numerical verification (or replacement) of derivatives (by definition)
+  - [ ] Macro for automatic extensions of regular (i.e. non-dual) functions
+  - [ ] no `std`
 
 See [project board](https://github.com/users/djmaxus/projects/5/) for the progress information and to possibly promote most wanted features.
