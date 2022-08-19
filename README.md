@@ -1,10 +1,12 @@
+by [djmaxus](https://djmaxus.github.io/)
+
+[![crates.io](https://img.shields.io/crates/v/autodj.svg)](https://crates.io/crates/autodj)
+[![docs](https://docs.rs/autodj/badge.svg)]()
+[![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/djmaxus/autodj/)
+
 # Automatic Differentiation Library
-> `autodj` by [djmaxus](https://djmaxus.github.io/)
 
 **AUTO**matic **D**erivatives & **J**acobians
-
-| [crates.io][crates] | [GitHub][github] |
-| :------------------ | :--------------- |
 
 ## Contents
 - [Automatic Differentiation Library](#automatic-differentiation-library)
