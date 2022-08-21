@@ -215,7 +215,7 @@ impl Dual {
 
 /// "Trait alias" for `Dual`-to-`Dual` functions
 /// ```
-/// use autodj::{Dual,DualFunction};
+/// use autodj::*;
 ///
 /// fn compose_dual_functions<DFnI, DFnII>(df_i : DFnI, df_ii: DFnII, arg: Dual) -> Dual
 /// where
@@ -226,11 +226,11 @@ impl Dual {
 /// }
 ///
 /// let square = |var| var * var;
-/// let plus_one = |var| var + Dual::par(1.);
+/// let plus_one = |var| var + 1.0.par();
 ///
 /// let x = 2.;
-/// let y = compose_dual_functions(square, plus_one, Dual::var(x));
-/// # assert_eq!(y, Dual::num(x*x+1., 2.*x));
+/// let y = compose_dual_functions(square, plus_one, x.var());
+/// # assert_eq!(y, Dual{val:x*x+1.,dual:2.*x});
 /// ```
 pub trait DualFunction: Fn(Dual) -> Dual {}
 impl<F> DualFunction for F where F: Fn(Dual) -> Dual {}
