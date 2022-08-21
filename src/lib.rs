@@ -1,3 +1,14 @@
+//! # Automatic Differentiation Library
+//!
+//! by [djmaxus](https://djmaxus.github.io/)
+//!
+//! ## Examples
+//! - `ideal_gas`: use Newton method on dual numbers to find pressure consistent to ideal gas thermodynamic model
+//!
+//! ## References
+//!
+//! - [Wikipedia](https://en.wikipedia.org/wiki/Dual_number)
+
 use std::{
     fmt::Debug,
     ops::{Add, Div, Mul, Neg, Sub},
