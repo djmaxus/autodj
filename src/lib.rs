@@ -6,7 +6,9 @@ use std::{
 /// Dual numbers as mathematical basis
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Dual {
+    /// Ordinary ("real") component
     pub val: f64,
+    /// Dual component
     pub dual: f64,
 }
 
