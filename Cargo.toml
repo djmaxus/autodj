@@ -3,7 +3,7 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 authors = ["Maksim Elizarev <maxim.elizarev.research@gmail.com>", "https://djmaxus.github.io/"]
 license = "Apache-2.0"
@@ -37,3 +37,7 @@ crate-type = ["lib"]
 
 [dev-dependencies]
 #rand = ">=0.8.5"
+
+[[example]]
+name = "ideal_gas"
+crate-type = ["bin"]
