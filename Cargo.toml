@@ -3,15 +3,13 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2021"
 authors = ["Maksim Elizarev <maxim.elizarev.research@gmail.com>", "https://djmaxus.github.io/"]
 license = "Apache-2.0"
 description = "Automatic Differentiation Library"
 repository = "https://github.com/djmaxus/autodj"
-
 categories = ["mathematics","science","simulation"]
-
 keywords = [
     "automatic",
     "derivative",
@@ -19,6 +17,8 @@ keywords = [
     "dual-number",
     "comp-math",
 ]
+autoexamples = true
+autotests = true
 
 [lib]
 name = "autodj"
@@ -37,7 +37,3 @@ crate-type = ["lib"]
 
 [dev-dependencies]
 #rand = ">=0.8.5"
-
-[[example]]
-name = "ideal_gas"
-crate-type = ["bin"]
