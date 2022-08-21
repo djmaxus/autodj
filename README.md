@@ -60,4 +60,4 @@ Almost the same day, I learned about Rust as well :crab:
   - [ ] Macro for automatic extensions of regular (i.e. non-dual) functions
   - [ ] no `std`
 
-You are very welcome to introduce [issues](https://github.com/djmaxus/autodj/issues) to promote most wanted features or to report a bug.
+You are very welcome to introduce [issues](https://github.com/djmaxus/autodj/issues/new/choose) to promote most wanted features or to report a bug.
