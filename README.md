@@ -39,7 +39,7 @@ Almost the same day, I learned about Rust as well :crab:
 ## Anticipated features
 
 - [x] Basic dual arithmetics as standalone feature
-- Number of variables
+- Number of variables to differentiate
   - [x] single
   - multiple
     - [ ] static
@@ -49,7 +49,6 @@ Almost the same day, I learned about Rust as well :crab:
   - [ ] `num`
   - [ ] linear algebra crates
 - Advanced features
-
   - [ ] Inter-operability of different dual types (e.g., single and multiple dynamic)
   - [ ] Arbitrary type of dual number components
   - [ ] Rust-alike safety of interfaces
@@ -59,5 +58,7 @@ Almost the same day, I learned about Rust as well :crab:
   - [ ] Numerical verification (or replacement) of derivatives (by definition)
   - [ ] Macro for automatic extensions of regular (i.e. non-dual) functions
   - [ ] no `std`
+  - [ ] Optional calculation of derivatives
+    - [ ] Iterator implementation as possible approach to lazy evaluation
 
 You are very welcome to introduce [issues](https://github.com/djmaxus/autodj/issues/new/choose) to promote most wanted features or to report a bug.
