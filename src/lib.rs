@@ -166,6 +166,14 @@ impl Dual {
         }
     }
 
+    /// Apply `DualFunction` to a dual number
+    pub fn derive<DF>(&self, func: &DF) -> Dual
+    where
+        DF: DualFunction,
+    {
+        func(*self)
+    }
+
     fn chain_of(self, val: f64, deriv: f64) -> Self {
         Self {
             val,
@@ -229,19 +237,23 @@ impl Dual {
 /// ```
 /// use autodj::*;
 ///
-/// fn compose_dual_functions<DFnI, DFnII>(df_i : DFnI, df_ii: DFnII, arg: Dual) -> Dual
+/// fn compose_dual_functions<DFnI, DFnII>(
+///     df_i : &DFnI,
+///     df_ii: &DFnII,
+///       arg: &f64
+/// ) -> Dual
 /// where
 ///     DFnI  : DualFunction,
 ///     DFnII : DualFunction,
 /// {
-///     df_ii(df_i(arg))
+///     arg.derive(df_i).derive(df_ii)
 /// }
 ///
 /// let square = |var| var * var;
 /// let plus_one = |var| var + 1.0.par();
 ///
 /// let x = 2.;
-/// let y = compose_dual_functions(square, plus_one, x.var());
+/// let y = compose_dual_functions(&square, &plus_one, &x);
 /// # assert_eq!(y, Dual{val:x*x+1.,dual:2.*x});
 /// ```
 pub trait DualFunction: Fn(Dual) -> Dual {}
