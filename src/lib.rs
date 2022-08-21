@@ -12,63 +12,39 @@ pub struct Dual {
     pub dual: f64,
 }
 
-/// Constructors
-impl Dual {
-    pub fn num(val: f64, dual: f64) -> Self {
-        Self { val, dual }
-    }
-    pub fn var(val: f64) -> Self {
-        Self::num(val, 1.)
-    }
-    pub fn par(val: f64) -> Self {
-        Self::num(val, 0.)
-    }
-}
+pub trait Dualize {
+    /// Construct dual varable (with unit dual part)
+    fn var(&self) -> Dual;
 
-/// Utilities
-impl Dual {
-    /// Apply custom function-derivative pair to a dual number.
-    /// May be used to extend the provided set of functions
-    /// ```
-    /// trait OpsExtended{
-    ///     fn powi(self, n: i32) -> Self;
-    /// }
-    ///
-    /// use autodj::Dual;
-    ///
-    /// impl OpsExtended for Dual {
-    ///     fn powi(self, n: i32) -> Self {
-    ///         self.custom(
-    ///             |x| x.powi(n),//
-    ///             |x| x.powi(n - 1) * (n as f64)
-    ///         )
-    ///     }
-    /// }
-    ///
-    /// let x = Dual::var(std::f64::consts::PI);
-    /// let n = 2;
-    /// let f = x.powi(n);
-    /// ```
-    pub fn custom<F, D>(self, func: F, deriv: D) -> Self
+    /// Construct dual parameter (with zero dual part)
+    fn par(&self) -> Dual;
+
+    /// Apply `DualFunction` to a value treated as dual variable
+    fn derive<DF>(&self, func: DF) -> Dual
     where
-        F: Fn(f64) -> f64,
-        D: Fn(f64) -> f64,
+        DF: DualFunction,
     {
-        Self {
-            val: func(self.val),
-            dual: self.dual * deriv(self.val),
+        func(self.var())
+    }
+}
+
+impl Dualize for f64 {
+    fn var(&self) -> Dual {
+        Dual {
+            val: *self,
+            dual: 1.,
         }
     }
 
-    fn chain_of(self, val: f64, deriv: f64) -> Self {
-        Self {
-            val,
-            dual: deriv * self.dual,
+    fn par(&self) -> Dual {
+        Dual {
+            val: *self,
+            dual: 0.,
         }
     }
 }
 
-/// basic arithmetic
+/// dual arithmetic
 impl Dual {
     fn add(self, rhs: Self) -> Self {
         let val = self.val + rhs.val;
@@ -99,57 +75,6 @@ impl Dual {
             val: -self.val,
             dual: -self.dual,
         }
-    }
-}
-
-/// commonly used functions
-impl Dual {
-    pub fn powf(self, p: f64) -> Self {
-        self.custom(
-            |x| x.powf(p), //
-            |x| x.powf(p - 1.) * p,
-        )
-    }
-
-    pub fn sin(self) -> Self {
-        let (sin, cos) = self.val.sin_cos();
-        self.chain_of(sin, cos)
-    }
-
-    pub fn cos(self) -> Self {
-        let (sin, cos) = self.val.sin_cos();
-        self.chain_of(cos, -sin)
-    }
-
-    pub fn sin_cos(self) -> (Self, Self) {
-        let (sin, cos) = self.val.sin_cos();
-        (self.chain_of(sin, cos), self.chain_of(cos, -sin))
-    }
-
-    pub fn exp(self) -> Self {
-        let val = self.val.exp();
-        self.chain_of(val, val)
-    }
-
-    pub fn ln(self) -> Self {
-        self.custom(
-            |x| x.ln(), //
-            |x| 1. / x,
-        )
-    }
-
-    pub fn abs(self) -> Self {
-        self.custom(
-            |x| x.abs(), //
-            |x| x.signum(),
-        )
-    }
-
-    pub fn signum(self) -> Self {
-        self.custom(
-            |x| x.signum(), //
-            |_| 0.,
-        )
     }
 }
 
@@ -192,6 +117,127 @@ impl Neg for Dual {
         self.neg()
     }
 }
+
+/// Utility
+impl Dual {
+    /// Apply custom function-derivative pair to a dual number.
+    /// May be used to extend the provided set of functions
+    /// ```
+    /// trait OpsExtended{
+    ///     fn powi(self, n: i32) -> Self;
+    /// }
+    ///
+    /// use autodj::*;
+    ///
+    /// impl OpsExtended for Dual {
+    ///     fn powi(self, n: i32) -> Self {
+    ///         self.custom(
+    ///             |x : f64| x.powi(n),//
+    ///             |x : f64| x.powi(n - 1) * (n as f64)
+    ///         )
+    ///     }
+    /// }
+    ///
+    /// let x = std::f64::consts::PI;
+    /// let n = 2;
+    /// let f = x.var().powi(n);
+    /// # assert_eq!(f,Dual{val:x.powi(n),dual:x.powi(n - 1) * (n as f64)});
+    /// ```
+    pub fn custom<F, D>(self, func: F, deriv: D) -> Self
+    where
+        F: FloatFunction,
+        D: FloatFunction,
+    {
+        Self {
+            val: func(self.val),
+            dual: self.dual * deriv(self.val),
+        }
+    }
+
+    fn chain_of(self, val: f64, deriv: f64) -> Self {
+        Self {
+            val,
+            dual: deriv * self.dual,
+        }
+    }
+}
+
+/// commonly used functions
+impl Dual {
+    pub fn powf(self, p: f64) -> Self {
+        self.custom(
+            |x: f64| x.powf(p), //
+            |x: f64| x.powf(p - 1.) * p,
+        )
+    }
+
+    pub fn sin(self) -> Self {
+        let (sin, cos) = self.val.sin_cos();
+        self.chain_of(sin, cos)
+    }
+
+    pub fn cos(self) -> Self {
+        let (sin, cos) = self.val.sin_cos();
+        self.chain_of(cos, -sin)
+    }
+
+    pub fn sin_cos(self) -> (Self, Self) {
+        let (sin, cos) = self.val.sin_cos();
+        (self.chain_of(sin, cos), self.chain_of(cos, -sin))
+    }
+
+    pub fn exp(self) -> Self {
+        let val = self.val.exp();
+        self.chain_of(val, val)
+    }
+
+    pub fn ln(self) -> Self {
+        self.custom(
+            |x: f64| x.ln(), //
+            |x: f64| 1. / x,
+        )
+    }
+
+    pub fn abs(self) -> Self {
+        self.custom(
+            |x: f64| x.abs(), //
+            |x: f64| x.signum(),
+        )
+    }
+
+    pub fn signum(self) -> Self {
+        self.custom(
+            |x: f64| x.signum(), //
+            |_| 0.,
+        )
+    }
+}
+
+/// "Trait alias" for `Dual`-to-`Dual` functions
+/// ```
+/// use autodj::{Dual,DualFunction};
+///
+/// fn compose_dual_functions<DFnI, DFnII>(df_i : DFnI, df_ii: DFnII, arg: Dual) -> Dual
+/// where
+///     DFnI  : DualFunction,
+///     DFnII : DualFunction,
+/// {
+///     df_ii(df_i(arg))
+/// }
+///
+/// let square = |var| var * var;
+/// let plus_one = |var| var + Dual::par(1.);
+///
+/// let x = 2.;
+/// let y = compose_dual_functions(square, plus_one, Dual::var(x));
+/// # assert_eq!(y, Dual::num(x*x+1., 2.*x));
+/// ```
+pub trait DualFunction: Fn(Dual) -> Dual {}
+impl<F> DualFunction for F where F: Fn(Dual) -> Dual {}
+
+/// "Trait alias" for `f64`-to-`f64` functions
+pub trait FloatFunction: Fn(f64) -> f64 {}
+impl<FF> FloatFunction for FF where FF: Fn(f64) -> f64 {}
 
 // Unit tests
 #[cfg(test)]
