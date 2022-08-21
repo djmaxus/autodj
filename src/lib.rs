@@ -12,6 +12,7 @@ pub struct Dual {
     pub dual: f64,
 }
 
+/// Construct autodifferentiation-specific dual numbers and evaluate functions over them
 pub trait Dualize {
     /// Construct dual varable (with unit dual part)
     fn var(&self) -> Dual;
