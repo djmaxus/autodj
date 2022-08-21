@@ -21,7 +21,7 @@ pub trait Dualize {
     fn par(&self) -> Dual;
 
     /// Apply `DualFunction` to a value treated as dual variable
-    fn derive<DF>(&self, func: DF) -> Dual
+    fn derive<DF>(&self, func: &DF) -> Dual
     where
         DF: DualFunction,
     {
