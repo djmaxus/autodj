@@ -40,7 +40,7 @@ Almost the same day, I learned about Rust as well :crab:
 
 - [x] Basic dual arithmetics as standalone feature
 - Number of variables
-  - [ ] single
+  - [x] single
   - multiple
     - [ ] static
     - [ ] dynamic
