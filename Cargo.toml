@@ -3,7 +3,7 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.2.5"
+version = "0.2.6"
 edition = "2021"
 authors = [
     "Maksim Elizarev <maxim.elizarev.research@gmail.com>",
@@ -19,7 +19,7 @@ autoexamples = true
 autotests = true
 
 [package.metadata.docs.rs]
-rustdoc-args = ["--examples"]
+rustdoc-args = ["--with-examples"]
 
 [lib]
 name = "autodj"
