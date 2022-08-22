@@ -144,8 +144,8 @@ impl Dual {
     /// impl OpsExtended for Dual {
     ///     fn powi(self, n: i32) -> Self {
     ///         self.custom(
-    ///             |x : f64| x.powi(n),//
-    ///             |x : f64| x.powi(n - 1) * (n as f64)
+    ///             &|x : f64| x.powi(n),//
+    ///             &|x : f64| x.powi(n - 1) * (n as f64)
     ///         )
     ///     }
     /// }
