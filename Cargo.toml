@@ -3,7 +3,7 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 authors = [
     "Maksim Elizarev <maxim.elizarev.research@gmail.com>",
