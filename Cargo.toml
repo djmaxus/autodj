@@ -5,20 +5,21 @@
 name = "autodj"
 version = "0.2.4"
 edition = "2021"
-authors = ["Maksim Elizarev <maxim.elizarev.research@gmail.com>", "https://djmaxus.github.io/"]
+authors = [
+    "Maksim Elizarev <maxim.elizarev.research@gmail.com>",
+    "https://djmaxus.github.io/",
+]
 license = "Apache-2.0"
 description = "Automatic Differentiation Library"
 repository = "https://github.com/djmaxus/autodj"
-categories = ["mathematics","science","simulation"]
-keywords = [
-    "automatic",
-    "derivative",
-    "jacobian",
-    "dual-number",
-    "comp-math",
-]
+categories = ["mathematics", "science", "simulation"]
+keywords = ["automatic", "derivative", "jacobian", "dual-number", "comp-math"]
+autobins = true
 autoexamples = true
 autotests = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--examples"]
 
 [lib]
 name = "autodj"
@@ -26,6 +27,11 @@ test = true
 doctest = true
 doc = true
 crate-type = ["lib"]
+
+[[example]]
+name = "ideal_gas"
+crate-type = ["bin"]
+
 
 #[dependencies.uuid]
 # version = ">=1.1.2"
@@ -35,5 +41,5 @@ crate-type = ["lib"]
 #     "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
 # ]
 
-[dev-dependencies]
+#[dev-dependencies]
 #rand = ">=0.8.5"
