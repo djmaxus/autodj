@@ -3,7 +3,7 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.2.7"
+version = "0.2.8"
 edition = "2021"
 authors = [
     "Maksim Elizarev <maxim.elizarev.research@gmail.com>",
@@ -31,6 +31,7 @@ crate-type = ["lib"]
 [[example]]
 name = "ideal_gas"
 crate-type = ["bin"]
+doc = true
 
 
 #[dependencies.uuid]
