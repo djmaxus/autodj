@@ -3,7 +3,7 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.2.8"
+version = "0.2.9"
 edition = "2021"
 authors = [
     "Maksim Elizarev <maxim.elizarev.research@gmail.com>",
@@ -18,8 +18,8 @@ autobins = true
 autoexamples = true
 autotests = true
 
-#[package.metadata.docs.rs]
-#rustdoc-args = ["--with-examples"]
+[package.metadata.docs.rs]
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
 
 [lib]
 name = "autodj"
