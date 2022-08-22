@@ -155,7 +155,7 @@ impl Dual {
     /// let f = x.var().powi(n);
     /// # assert_eq!(f,Dual{val:x.powi(n),dual:x.powi(n - 1) * (n as f64)});
     /// ```
-    pub fn custom<F, D>(self, func: F, deriv: D) -> Self
+    pub fn custom<F, D>(&self, func: &F, deriv: &D) -> Self
     where
         F: FloatFunction,
         D: FloatFunction,
@@ -186,8 +186,8 @@ impl Dual {
 impl Dual {
     pub fn powf(self, p: f64) -> Self {
         self.custom(
-            |x: f64| x.powf(p), //
-            |x: f64| x.powf(p - 1.) * p,
+            &|x: f64| x.powf(p), //
+            &|x: f64| x.powf(p - 1.) * p,
         )
     }
 
@@ -213,22 +213,22 @@ impl Dual {
 
     pub fn ln(self) -> Self {
         self.custom(
-            |x: f64| x.ln(), //
-            |x: f64| 1. / x,
+            &|x: f64| x.ln(), //
+            &|x: f64| 1. / x,
         )
     }
 
     pub fn abs(self) -> Self {
         self.custom(
-            |x: f64| x.abs(), //
-            |x: f64| x.signum(),
+            &|x: f64| x.abs(), //
+            &|x: f64| x.signum(),
         )
     }
 
     pub fn signum(self) -> Self {
         self.custom(
-            |x: f64| x.signum(), //
-            |_| 0.,
+            &|x: f64| x.signum(), //
+            &|_| 0.,
         )
     }
 }
@@ -249,10 +249,11 @@ impl Dual {
 ///     arg.derive(df_i).derive(df_ii)
 /// }
 ///
-/// let square = |var| var * var;
+/// let square   = |var| var * var;
 /// let plus_one = |var| var + 1.0.par();
 ///
 /// let x = 2.;
+///
 /// let y = compose_dual_functions(&square, &plus_one, &x);
 /// # assert_eq!(y, Dual{val:x*x+1.,dual:2.*x});
 /// ```
