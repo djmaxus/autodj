@@ -48,6 +48,7 @@ Almost the same day, I learned about Rust as well :crab:
 - Third-party crates support (as features)
   - [ ] `num`
   - [ ] linear algebra crates
+- [ ] Implement dual arithmetics as pure trait, then implement it for a few structures
 - Advanced features
   - [ ] Inter-operability of different dual types (e.g., single and multiple dynamic)
   - [ ] Arbitrary type of dual number components
