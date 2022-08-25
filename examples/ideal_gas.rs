@@ -30,14 +30,29 @@ use autodj::*;
 fn main() {
     let [pressure, volume, temperature, quantity]: [f64; 4] = [1., 1.618, 300., 1.];
 
-    let calc_residual_dual =
-        |x| calc_ideal_gas_generic(x, volume.par(), temperature.par(), quantity.par());
+    let calc_residual_dual = |x: &DualNumber| {
+        calc_ideal_gas_generic(
+            *x, //
+            volume.par(),
+            temperature.par(),
+            quantity.par(),
+        )
+    };
 
-    let residual_generic = pressure.derive(&calc_residual_dual);
+    let residual_generic = pressure.eval(&calc_residual_dual);
 
-    print_state_linearization(residual_generic.val(), residual_generic.deriv(), &pressure);
+    print_state_linearization(
+        residual_generic.val(), //
+        residual_generic.deriv(),
+        &pressure,
+    );
 
-    let pressure_newtoned = newton_iterations(calc_residual_dual, pressure, 1e-3, 10);
+    let pressure_newtoned = newton_iterations(
+        calc_residual_dual, //
+        pressure,
+        1e-3,
+        10,
+    );
 
     match pressure_newtoned {
         Ok(pressure_refined) => {
@@ -87,7 +102,7 @@ where
     let mut calc = None;
 
     for _ in 0..=max_iter {
-        calc = Some(result.derive(&func));
+        calc = Some(result.eval(&func));
 
         let error = (calc.unwrap().val() - tolerance).abs();
 

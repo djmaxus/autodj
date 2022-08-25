@@ -49,7 +49,7 @@ pub trait Dualize {
     where
         DF: DualFunction,
     {
-        func(self.var())
+        func(&self.var())
     }
 }
 
@@ -184,7 +184,7 @@ impl DualNumber {
     where
         DF: DualFunction,
     {
-        func(*self)
+        func(self)
     }
 
     fn chain_of(self, val: f64, deriv: f64) -> Self {
@@ -262,16 +262,16 @@ impl DualNumber {
 ///     arg.eval(df_i).eval(df_ii)
 /// }
 ///
-/// let square   = |var| var * var;
-/// let plus_one = |var| var + 1.0.par();
+/// let square   = |var : &_| *var * *var;
+/// let plus_one = |var : &_| *var + 1.0.par();
 ///
 /// let x = 2.;
 ///
 /// let y = compose_dual_functions(&square, &plus_one, &x);
 /// # assert_eq!(y, DualNumber::new(x*x+1.,2.*x));
 /// ```
-pub trait DualFunction: Fn(DualNumber) -> DualNumber {}
-impl<F> DualFunction for F where F: Fn(DualNumber) -> DualNumber {}
+pub trait DualFunction: Fn(&DualNumber) -> DualNumber {}
+impl<F> DualFunction for F where F: Fn(&DualNumber) -> DualNumber {}
 
 /// "Trait alias" for transforms within [`f64`]'s domain
 pub trait FloatFunction: Fn(f64) -> f64 {}
