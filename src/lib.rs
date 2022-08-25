@@ -69,45 +69,13 @@ impl Dualize for f64 {
     }
 }
 
-/// dual arithmetic
-impl DualNumber {
-    fn add(self, rhs: Self) -> Self {
-        let val = self.val + rhs.val;
-        let dual = self.dual + rhs.dual;
-        Self { val, dual }
-    }
-
-    fn sub(self, rhs: Self) -> Self {
-        let val = self.val - rhs.val;
-        let dual = self.dual - rhs.dual;
-        Self { val, dual }
-    }
-
-    fn mul(self, rhs: Self) -> Self {
-        let val = self.val * rhs.val;
-        let dual = self.dual * rhs.val + rhs.dual * self.val;
-        Self { val, dual }
-    }
-
-    fn div(self, rhs: Self) -> Self {
-        let val = self.val / rhs.val;
-        let dual = (self.dual * rhs.val - rhs.dual * self.val) / (rhs.val * rhs.val);
-        Self { val, dual }
-    }
-
-    fn neg(self) -> Self {
-        Self {
-            val: -self.val,
-            dual: -self.dual,
-        }
-    }
-}
-
 impl Add for DualNumber {
     type Output = DualNumber;
 
     fn add(self, rhs: Self) -> Self::Output {
-        self.add(rhs)
+        let val = self.val + rhs.val;
+        let dual = self.dual + rhs.dual;
+        Self { val, dual }
     }
 }
 
@@ -115,7 +83,9 @@ impl Sub for DualNumber {
     type Output = DualNumber;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        self.sub(rhs)
+        let val = self.val - rhs.val;
+        let dual = self.dual - rhs.dual;
+        Self { val, dual }
     }
 }
 
@@ -123,7 +93,9 @@ impl Mul for DualNumber {
     type Output = DualNumber;
 
     fn mul(self, rhs: Self) -> Self::Output {
-        self.mul(rhs)
+        let val = self.val * rhs.val;
+        let dual = self.dual * rhs.val + rhs.dual * self.val;
+        Self { val, dual }
     }
 }
 
@@ -131,7 +103,9 @@ impl Div for DualNumber {
     type Output = DualNumber;
 
     fn div(self, rhs: Self) -> Self::Output {
-        self.div(rhs)
+        let val = self.val / rhs.val;
+        let dual = (self.dual * rhs.val - rhs.dual * self.val) / (rhs.val * rhs.val);
+        Self { val, dual }
     }
 }
 
@@ -139,7 +113,10 @@ impl Neg for DualNumber {
     type Output = DualNumber;
 
     fn neg(self) -> Self::Output {
-        self.neg()
+        Self {
+            val: -self.val,
+            dual: -self.dual,
+        }
     }
 }
 
