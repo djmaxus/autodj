@@ -3,7 +3,7 @@
 //! by [djmaxus](https://djmaxus.github.io/)
 //!
 //! ## Examples
-//! - `ideal_gas`: use Newton method on dual numbers to find pressure consistent to ideal gas thermodynamic model
+//! - `ideal_gas`: use Newton method on [`DualNumber`] to find pressure consistent to ideal gas thermodynamic model
 //!
 //! ## References
 //!
@@ -23,7 +23,7 @@ pub struct DualNumber {
     pub dual: f64,
 }
 
-/// Construct autodifferentiation-specific dual numbers and evaluate functions over them
+/// Construct autodifferentiation-specific [`DualNumber`]s and evaluate functions over them
 pub trait Dualize {
     /// Construct dual varable (with unit dual part)
     fn var(&self) -> DualNumber;
@@ -31,7 +31,7 @@ pub trait Dualize {
     /// Construct dual parameter (with zero dual part)
     fn par(&self) -> DualNumber;
 
-    /// Apply `DualFunction` to a value treated as dual variable
+    /// Apply [`DualFunction`] to a value treated as [`DualNumber`] variable
     fn derive<DF>(&self, func: &DF) -> DualNumber
     where
         DF: DualFunction,
@@ -132,7 +132,7 @@ impl Neg for DualNumber {
 
 /// Utility
 impl DualNumber {
-    /// Apply custom function-derivative pair to a dual number.
+    /// Apply custom function-derivative pair to a [`DualNumber`].\
     /// May be used to extend the provided set of functions
     /// ```
     /// # use autodj::*;
@@ -166,7 +166,7 @@ impl DualNumber {
         }
     }
 
-    /// Apply `DualFunction` to a dual number
+    /// Apply [`DualFunction`] to a [`DualNumber`]
     pub fn derive<DF>(&self, func: &DF) -> Self
     where
         DF: DualFunction,
@@ -233,7 +233,7 @@ impl DualNumber {
     }
 }
 
-/// "Trait alias" for `Dual`-to-`Dual` functions
+/// "Trait alias" for transforms within [`DualNumber`]'s domain
 /// ```
 /// # use autodj::*;
 /// #
@@ -260,7 +260,7 @@ impl DualNumber {
 pub trait DualFunction: Fn(DualNumber) -> DualNumber {}
 impl<F> DualFunction for F where F: Fn(DualNumber) -> DualNumber {}
 
-/// "Trait alias" for `f64`-to-`f64` functions
+/// "Trait alias" for transforms within [`f64`]'s domain
 pub trait FloatFunction: Fn(f64) -> f64 {}
 impl<FF> FloatFunction for FF where FF: Fn(f64) -> f64 {}
 
