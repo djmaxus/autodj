@@ -16,7 +16,7 @@ use std::{
 
 /// Dual numbers as mathematical basis
 #[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Dual {
+pub struct DualNumber {
     /// Ordinary ("real") component
     pub val: f64,
     /// Dual component
@@ -26,13 +26,13 @@ pub struct Dual {
 /// Construct autodifferentiation-specific dual numbers and evaluate functions over them
 pub trait Dualize {
     /// Construct dual varable (with unit dual part)
-    fn var(&self) -> Dual;
+    fn var(&self) -> DualNumber;
 
     /// Construct dual parameter (with zero dual part)
-    fn par(&self) -> Dual;
+    fn par(&self) -> DualNumber;
 
     /// Apply `DualFunction` to a value treated as dual variable
-    fn derive<DF>(&self, func: &DF) -> Dual
+    fn derive<DF>(&self, func: &DF) -> DualNumber
     where
         DF: DualFunction,
     {
@@ -41,15 +41,15 @@ pub trait Dualize {
 }
 
 impl Dualize for f64 {
-    fn var(&self) -> Dual {
-        Dual {
+    fn var(&self) -> DualNumber {
+        DualNumber {
             val: *self,
             dual: 1.,
         }
     }
 
-    fn par(&self) -> Dual {
-        Dual {
+    fn par(&self) -> DualNumber {
+        DualNumber {
             val: *self,
             dual: 0.,
         }
@@ -57,7 +57,7 @@ impl Dualize for f64 {
 }
 
 /// dual arithmetic
-impl Dual {
+impl DualNumber {
     fn add(self, rhs: Self) -> Self {
         let val = self.val + rhs.val;
         let dual = self.dual + rhs.dual;
@@ -90,40 +90,40 @@ impl Dual {
     }
 }
 
-impl Add for Dual {
-    type Output = Dual;
+impl Add for DualNumber {
+    type Output = DualNumber;
 
     fn add(self, rhs: Self) -> Self::Output {
         self.add(rhs)
     }
 }
 
-impl Sub for Dual {
-    type Output = Dual;
+impl Sub for DualNumber {
+    type Output = DualNumber;
 
     fn sub(self, rhs: Self) -> Self::Output {
         self.sub(rhs)
     }
 }
 
-impl Mul for Dual {
-    type Output = Dual;
+impl Mul for DualNumber {
+    type Output = DualNumber;
 
     fn mul(self, rhs: Self) -> Self::Output {
         self.mul(rhs)
     }
 }
 
-impl Div for Dual {
-    type Output = Dual;
+impl Div for DualNumber {
+    type Output = DualNumber;
 
     fn div(self, rhs: Self) -> Self::Output {
         self.div(rhs)
     }
 }
 
-impl Neg for Dual {
-    type Output = Dual;
+impl Neg for DualNumber {
+    type Output = DualNumber;
 
     fn neg(self) -> Self::Output {
         self.neg()
@@ -131,17 +131,17 @@ impl Neg for Dual {
 }
 
 /// Utility
-impl Dual {
+impl DualNumber {
     /// Apply custom function-derivative pair to a dual number.
     /// May be used to extend the provided set of functions
     /// ```
+    /// # use autodj::*;
+    /// #
     /// trait OpsExtended{
     ///     fn powi(self, n: i32) -> Self;
     /// }
     ///
-    /// use autodj::*;
-    ///
-    /// impl OpsExtended for Dual {
+    /// impl OpsExtended for DualNumber {
     ///     fn powi(self, n: i32) -> Self {
     ///         self.custom(
     ///             &|x : f64| x.powi(n),//
@@ -153,7 +153,7 @@ impl Dual {
     /// let x = std::f64::consts::PI;
     /// let n = 2;
     /// let f = x.var().powi(n);
-    /// # assert_eq!(f,Dual{val:x.powi(n),dual:x.powi(n - 1) * (n as f64)});
+    /// # assert_eq!(f,DualNumber{val:x.powi(n),dual:x.powi(n - 1) * (n as f64)});
     /// ```
     pub fn custom<F, D>(&self, func: &F, deriv: &D) -> Self
     where
@@ -167,7 +167,7 @@ impl Dual {
     }
 
     /// Apply `DualFunction` to a dual number
-    pub fn derive<DF>(&self, func: &DF) -> Dual
+    pub fn derive<DF>(&self, func: &DF) -> Self
     where
         DF: DualFunction,
     {
@@ -183,7 +183,7 @@ impl Dual {
 }
 
 /// commonly used functions
-impl Dual {
+impl DualNumber {
     pub fn powf(self, p: f64) -> Self {
         self.custom(
             &|x: f64| x.powf(p), //
@@ -235,13 +235,13 @@ impl Dual {
 
 /// "Trait alias" for `Dual`-to-`Dual` functions
 /// ```
-/// use autodj::*;
-///
+/// # use autodj::*;
+/// #
 /// fn compose_dual_functions<DFnI, DFnII>(
 ///     df_i : &DFnI,
 ///     df_ii: &DFnII,
 ///       arg: &f64
-/// ) -> Dual
+/// ) -> DualNumber
 /// where
 ///     DFnI  : DualFunction,
 ///     DFnII : DualFunction,
@@ -255,10 +255,10 @@ impl Dual {
 /// let x = 2.;
 ///
 /// let y = compose_dual_functions(&square, &plus_one, &x);
-/// # assert_eq!(y, Dual{val:x*x+1.,dual:2.*x});
+/// # assert_eq!(y, DualNumber{val:x*x+1.,dual:2.*x});
 /// ```
-pub trait DualFunction: Fn(Dual) -> Dual {}
-impl<F> DualFunction for F where F: Fn(Dual) -> Dual {}
+pub trait DualFunction: Fn(DualNumber) -> DualNumber {}
+impl<F> DualFunction for F where F: Fn(DualNumber) -> DualNumber {}
 
 /// "Trait alias" for `f64`-to-`f64` functions
 pub trait FloatFunction: Fn(f64) -> f64 {}
