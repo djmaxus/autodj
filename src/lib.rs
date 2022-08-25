@@ -17,10 +17,23 @@ use std::{
 /// Dual numbers as mathematical basis
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct DualNumber {
-    /// Ordinary ("real") component
-    pub val: f64,
-    /// Dual component
-    pub dual: f64,
+    val: f64,
+    dual: f64,
+}
+
+impl DualNumber {
+    /// Ordinary ("real") component, just a value
+    pub fn val(&self) -> &f64 {
+        &self.val
+    }
+    /// Dual component, a derivative
+    pub fn deriv(&self) -> &f64 {
+        &self.dual
+    }
+    /// An arbitrary dual number
+    pub fn new(val: f64, dual: f64) -> Self {
+        Self { val, dual }
+    }
 }
 
 /// Construct autodifferentiation-specific [`DualNumber`]s and evaluate functions over them
@@ -153,7 +166,7 @@ impl DualNumber {
     /// let x = std::f64::consts::PI;
     /// let n = 2;
     /// let f = x.var().powi(n);
-    /// # assert_eq!(f,DualNumber{val:x.powi(n),dual:x.powi(n - 1) * (n as f64)});
+    /// # assert_eq!(f,DualNumber::new(x.powi(n), x.powi(n - 1) * (n as f64)));
     /// ```
     pub fn custom<F, D>(&self, func: &F, deriv: &D) -> Self
     where
@@ -255,7 +268,7 @@ impl DualNumber {
 /// let x = 2.;
 ///
 /// let y = compose_dual_functions(&square, &plus_one, &x);
-/// # assert_eq!(y, DualNumber{val:x*x+1.,dual:2.*x});
+/// # assert_eq!(y, DualNumber::new(x*x+1.,2.*x));
 /// ```
 pub trait DualFunction: Fn(DualNumber) -> DualNumber {}
 impl<F> DualFunction for F where F: Fn(DualNumber) -> DualNumber {}

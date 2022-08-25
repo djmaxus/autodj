@@ -35,7 +35,7 @@ fn main() {
 
     let residual_generic = pressure.derive(&calc_residual_dual);
 
-    print_state_linearization(residual_generic.val, residual_generic.dual, pressure);
+    print_state_linearization(residual_generic.val(), residual_generic.deriv(), &pressure);
 
     let pressure_newtoned = newton_iterations(calc_residual_dual, pressure, 1e-3, 10);
 
@@ -53,7 +53,7 @@ fn main() {
     }
 }
 
-fn print_state_linearization(value: f64, deriv: f64, origin: f64) {
+fn print_state_linearization(value: &f64, deriv: &f64, origin: &f64) {
     println!("Linearization: {value} + {deriv} * (pressure - {origin})");
 }
 
@@ -89,17 +89,17 @@ where
     for _ in 0..=max_iter {
         calc = Some(result.derive(&func));
 
-        let error = (calc.unwrap().val - tolerance).abs();
+        let error = (calc.unwrap().val() - tolerance).abs();
 
         if error <= tolerance {
             return Ok(result);
         }
 
-        let delta = -calc.unwrap().val / calc.unwrap().dual;
+        let delta = -calc.unwrap().val() / calc.unwrap().deriv();
 
         result += delta;
     }
 
-    Err(ConvergenceError(calc.map_or(None, |x| Some(x.val))))
+    Err(ConvergenceError(calc.map_or(None, |x| Some(*x.val()))))
 }
 struct ConvergenceError(Option<f64>);
