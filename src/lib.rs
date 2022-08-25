@@ -45,7 +45,7 @@ pub trait Dualize {
     fn par(&self) -> DualNumber;
 
     /// Apply [`DualFunction`] to a value treated as [`DualNumber`] variable
-    fn derive<DF>(&self, func: &DF) -> DualNumber
+    fn eval<DF>(&self, func: &DF) -> DualNumber
     where
         DF: DualFunction,
     {
@@ -180,7 +180,7 @@ impl DualNumber {
     }
 
     /// Apply [`DualFunction`] to a [`DualNumber`]
-    pub fn derive<DF>(&self, func: &DF) -> Self
+    pub fn eval<DF>(&self, func: &DF) -> Self
     where
         DF: DualFunction,
     {
@@ -259,7 +259,7 @@ impl DualNumber {
 ///     DFnI  : DualFunction,
 ///     DFnII : DualFunction,
 /// {
-///     arg.derive(df_i).derive(df_ii)
+///     arg.eval(df_i).eval(df_ii)
 /// }
 ///
 /// let square   = |var| var * var;
