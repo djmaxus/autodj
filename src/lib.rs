@@ -1,3 +1,4 @@
+// TODO: extend crate doc comments
 //! # Automatic Differentiation Library
 //!
 //! by [djmaxus](https://djmaxus.github.io/)
