@@ -11,3 +11,4 @@
 //! - [Wikipedia](https://en.wikipedia.org/wiki/Dual_number)
 
 pub mod single;
+pub mod multi;
