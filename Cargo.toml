@@ -42,5 +42,6 @@ doc = true
 #     "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
 # ]
 
-#[dev-dependencies]
-#rand = ">=0.8.5"
+# [dev-dependencies]
+# rand = ">=0"
+# itertools = ">=0"
