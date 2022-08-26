@@ -4,7 +4,7 @@
 //! by [djmaxus](https://djmaxus.github.io/)
 //!
 //! ## Examples
-//! - `ideal_gas`: use Newton method on [`DualNumber`] to find pressure consistent to ideal gas thermodynamic model
+//! - `ideal_gas`: use Newton method on [`single::DualNumber`] to find pressure consistent to ideal gas thermodynamic model
 //!
 //! ## References
 //!

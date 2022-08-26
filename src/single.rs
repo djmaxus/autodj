@@ -115,7 +115,7 @@ impl DualNumber {
     /// Apply custom function-derivative pair to a [`DualNumber`].\
     /// May be used to extend the provided set of functions
     /// ```
-    /// # use autodj::*;
+    /// # use autodj::single::*;
     /// #
     /// trait OpsExtended{
     ///     fn powi(self, n: i32) -> Self;
@@ -215,7 +215,7 @@ impl DualNumber {
 
 /// "Trait alias" for transforms within [`DualNumber`]'s domain
 /// ```
-/// # use autodj::*;
+/// # use autodj::single::*;
 /// #
 /// fn compose_dual_functions<DFnI, DFnII>(
 ///     df_i : &DFnI,
