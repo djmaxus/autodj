@@ -25,7 +25,7 @@
 //! In this example, we use Newton method to solve the equation.
 //!
 
-use autodj::*;
+use autodj::single::*;
 
 fn main() {
     let [pressure, volume, temperature, quantity]: [f64; 4] = [1., 1.618, 300., 1.];
