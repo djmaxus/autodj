@@ -42,7 +42,7 @@ Almost the same day, I learned about Rust as well :crab:
 - Number of variables to differentiate
   - [x] single
   - multiple
-    - [ ] static
+    - [x] static
     - [ ] dynamic
 - [ ] Calculation tracking (partial derivatives of intermediate values)
 - Third-party crates support (as features)
