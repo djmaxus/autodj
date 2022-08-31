@@ -3,7 +3,7 @@
 [package]
 # publish = false
 name = "autodj"
-version = "0.3.0"
+version = "0.3.1-alpha.1"
 edition = "2021"
 authors = [
     "Maksim Elizarev <maxim.elizarev.research@gmail.com>",
@@ -35,7 +35,7 @@ doc = true
 
 
 #[dependencies.uuid]
-# version = ">=1.1.2"
+# version = ">=0"
 # features = [
 #     "v4",                # Lets you generate random UUIDs
 #     "fast-rng",          # Use a faster (but still sufficiently random) RNG
