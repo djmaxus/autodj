@@ -9,7 +9,7 @@ authors = [
     "Maksim Elizarev <maxim.elizarev.research@gmail.com>",
     "https://djmaxus.github.io/",
 ]
-license = "MIT OR Apache-2.0" # TODO: add MIT option with corresponding file in repository
+license = "MIT OR Apache-2.0"
 description = "Automatic Differentiation Library"
 repository = "https://github.com/djmaxus/autodj"
 categories = ["mathematics", "science", "simulation"]
