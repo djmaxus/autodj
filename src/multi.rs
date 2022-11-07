@@ -245,5 +245,5 @@ use std::{
     ops::{Add, Div, Mul, Neg, Sub},
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 struct DualGradInner<const N: usize>(DualGrad<N>);
