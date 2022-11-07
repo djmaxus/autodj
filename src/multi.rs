@@ -1,4 +1,7 @@
-#[derive(Clone, Copy, Debug)]
+// TODO: implement common part of `single` and `multi` as single piece of code
+// TODO: implement arithmetic operations with `f64`
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DualNumber<const N: usize> {
     val: f64,
     dual: DualGradInner<N>,
@@ -16,7 +19,7 @@ impl<const N: usize> DualNumber<N> {
     pub fn grad(&self) -> &DualGrad<N> {
         &self.dual.0
     }
-    fn new(val: f64, &dual: &DualGrad<N>) -> Self {
+    pub fn new(val: f64, &dual: &DualGrad<N>) -> Self {
         Self::assert_size();
         let dual = DualGradInner(dual);
         Self { val, dual }
@@ -186,6 +189,8 @@ impl<const N: usize> DualNumber<N> {
 
     pub const SIZE_MIN: usize = 2;
     pub const SIZE_MAX: usize = 64;
+
+    // TODO: make this a property of `DualGradInner`
     const fn assert_size() {
         assert!(N >= Self::SIZE_MIN);
         assert!(N <= Self::SIZE_MAX);
