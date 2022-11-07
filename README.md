@@ -2,8 +2,9 @@
 
 [![crates.io](https://img.shields.io/crates/v/autodj.svg)](https://crates.io/crates/autodj)
 [![docs](https://docs.rs/autodj/badge.svg)](https://docs.rs/autodj/)
-[![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg)](https://github.com/djmaxus/autodj/)
-[![rust-clippy analyze](https://github.com/djmaxus/autodj/actions/workflows/rust-clippy.yml/badge.svg)](https://github.com/djmaxus/autodj/actions/workflows/rust-clippy.yml)
+
+[![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg?branch=master)]([https://github.com/djmaxus/autodj/](https://github.com/djmaxus/autodj/releases))
+![rust-clippy analyze](https://github.com/djmaxus/autodj/actions/workflows/rust-clippy.yml/badge.svg?branch=master)
 
 **AUTO**matic **D**erivatives & **J**acobians \
 by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/autodj/issues)
