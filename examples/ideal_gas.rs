@@ -58,7 +58,7 @@ fn main() {
         Ok(pressure_refined) => {
             println!("{pressure} refined to {pressure_refined} using Newton method")
         }
-        Err(ConvergenceError(err)) => {
+        Err(err) => {
             println!("Not converged Newton iterations:");
             match err {
                 Some(err) => println!("----with an error of {}", err),
@@ -93,9 +93,9 @@ fn newton_iterations<Resid>(
     initial: f64,
     tolerance: f64,
     max_iter: u8,
-) -> Result<f64, ConvergenceError>
+) -> Result<f64, Option<f64>>
 where
-    Resid: DualFunction,
+    for<'a> Resid: DualFunction<'a>,
 {
     let mut result = initial;
 
@@ -115,6 +115,5 @@ where
         result += delta;
     }
 
-    Err(ConvergenceError(calc.map_or(None, |x| Some(*x.val()))))
+    Err(calc.map(|x| *x.val()))
 }
-struct ConvergenceError(Option<f64>);
