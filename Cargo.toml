@@ -33,6 +33,9 @@ name = "ideal_gas"
 crate-type = ["bin"]
 doc = true
 
+# [dependencies]
+# num = ">=0"
+# nalgebra = ">=0"
 
 #[dependencies.uuid]
 # version = ">=0"
