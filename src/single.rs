@@ -37,7 +37,7 @@ pub trait Dualize {
     /// Apply [`DualFunction`] to a value treated as [`DualNumber`] variable
     fn eval<DF>(&self, func: &DF) -> DualNumber
     where
-        DF: DualFunction,
+        for<'a> DF: DualFunction<'a>,
     {
         func(&self.var())
     }
@@ -137,8 +137,8 @@ impl DualNumber {
     /// ```
     pub fn custom<F, D>(&self, func: &F, deriv: &D) -> Self
     where
-        F: FloatFunction,
-        D: FloatFunction,
+        F: Fn64,
+        D: Fn64,
     {
         Self {
             val: func(self.val),
@@ -149,7 +149,7 @@ impl DualNumber {
     /// Apply [`DualFunction`] to a [`DualNumber`]
     pub fn eval<DF>(&self, func: &DF) -> Self
     where
-        DF: DualFunction,
+        for<'a> DF: DualFunction<'a>,
     {
         func(self)
     }
@@ -237,12 +237,11 @@ impl DualNumber {
 /// let y = compose_dual_functions(&square, &plus_one, &x);
 /// # assert_eq!(y, DualNumber::new(x*x+1.,2.*x));
 /// ```
-pub trait DualFunction: Fn(&DualNumber) -> DualNumber {}
-impl<F> DualFunction for F where F: Fn(&DualNumber) -> DualNumber {}
 
-/// "Trait alias" for transforms within [`f64`]'s domain
-pub trait FloatFunction: Fn(f64) -> f64 {}
-impl<FF> FloatFunction for FF where FF: Fn(f64) -> f64 {}
+pub trait DualFunction<'a>: FnBorrowXY<'a, DualNumber, DualNumber> {}
+impl<'a, F> DualFunction<'a> for F where F: FnBorrowXY<'a, DualNumber, DualNumber> {}
+
+use crate::common::{Fn64, FnBorrowXY};
 
 // Unit tests
 #[cfg(test)]
