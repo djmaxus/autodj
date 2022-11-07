@@ -1,20 +1,16 @@
-# Automatic Differentiation Library
+# $\alpha$ Automatic Differentiation Library
 
 [![crates.io](https://img.shields.io/crates/v/autodj.svg)](https://crates.io/crates/autodj)
 [![docs](https://docs.rs/autodj/badge.svg)](https://docs.rs/autodj/)
-
-[![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg?branch=master)]([https://github.com/djmaxus/autodj/](https://github.com/djmaxus/autodj/releases))
+![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg?branch=master)
 ![rust-clippy analyze](https://github.com/djmaxus/autodj/actions/workflows/rust-clippy.yml/badge.svg?branch=master)
 
-**AUTO**matic **D**erivatives & **J**acobians \
+**AUTO**matic **D**erivatives & **J**acobians
 by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/autodj/issues)
-
-- pre-alpha
-- play-ready
 
 ## Contents
 
-- [Automatic Differentiation Library](#automatic-differentiation-library)
+- [Automatic Differentiation Library](#alpha-automatic-differentiation-library)
   - [Contents](#contents)
   - [Motivation](#motivation)
   - [Project goals](#project-goals)
@@ -45,6 +41,7 @@ Almost the same day, I learned about Rust as well :crab:
   - multiple
     - [x] static
     - [ ] dynamic
+  - [ ] Jacobians for efficient layouts in memory
 - [ ] Calculation tracking (partial derivatives of intermediate values)
 - Third-party crates support (as features)
   - [ ] `num`
