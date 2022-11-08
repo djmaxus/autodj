@@ -223,8 +223,8 @@ impl DualNumber {
 ///       arg: &f64
 /// ) -> DualNumber
 /// where
-///     DFnI  : DualFunction,
-///     DFnII : DualFunction,
+///     for<'a> DFnI  : DualFunction<'a>,
+///     for<'a> DFnII : DualFunction<'a>,
 /// {
 ///     arg.eval(df_i).eval(df_ii)
 /// }
