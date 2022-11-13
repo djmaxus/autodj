@@ -8,25 +8,79 @@
 **AUTO**matic **D**erivatives & **J**acobians
 by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/autodj/issues)
 
+- [x] **Single variables**
+
+  ```rust
+  use autodj::single::*;
+
+  let x : DualNumber = 2.0.into_variable();
+
+  let f = x * x + &1.0.into(); // can be borrowed for arithmetic operations
+
+  assert_eq!(f.value(), 5.0);
+  assert_eq!(f.deriv(), 4.0);
+  assert_eq!(format!("{f}"), "5+4∆"); // fmt::Display resembles Taylor expansion
+  ```
+
+- [x] **Multiple variables**
+      They are based on **multiple dual components**
+      and **don't require 'backward' differentiation** to be efficient
+      since each partial derivative is tracked separately from the start
+
+  - **Static** number of variables
+
+    ```rust
+    use autodj::array::*;
+
+    let vars : DualVariables<2> = [2.0, 3.0].into_variables(); // consistent set of independent variables
+    let [x, y] = vars.get().to_owned();
+
+    let f = x * (y - 1.0.into());
+
+    assert_eq!(f.value(), 4.);
+    assert_eq!(f.grad() , &[2., 2.]);
+    assert_eq!(format!("{f}"), "4+[2.0, 2.0]∆");
+    ```
+
+  - **Dynamic** number of variables
+
+    ```rust
+    use autodj::vector::*;
+
+    let x : DualVariables = vec![1., 2., 3., 4., 5.].into_variables();
+
+    let f : DualNumber = x.get().iter().map(|x : &DualNumber| x * &2.0.into()).sum();
+
+    assert_eq!(f.value(), 30.);
+    f.grad().iter().for_each(|deriv| assert_eq!(deriv, &2.0) );
+    ```
+
+- [x] **Generic implementation**
+
+  ```rust
+  use autodj::common::DualCommon; // can be specialized for your needs
+  ```
+
 ## Contents
 
-- [Automatic Differentiation Library](#alpha-automatic-differentiation-library)
-  - [Contents](#contents)
-  - [Motivation](#motivation)
-  - [Project goals](#project-goals)
-  - [Anticipated features](#anticipated-features)
+- [Contents](#contents)
+- [Motivation](#motivation)
+- [Project goals](#project-goals)
+- [Anticipated features](#anticipated-features)
+- [Comparison with `autodiff`](#comparison-with-autodiff)
 
 ## Motivation
 
-For the living (and for my heart),
-I do research & development in the area of computational mathematics
-and wrote a whole bunch of sophisticated Jacobians _by hand_.
+I do both academic & business R&D in the area of computational mathematics.
+As well as many of us, I've written a whole bunch of sophisticated Jacobians _by hand_.
 
 One day, I learned about automatic differentiation based on dual numbers.
 Almost the same day, I learned about Rust as well :crab:
 
-- No more devastating hand-written derivatives!
-- No more unsafe code!
+Then, I decided to:
+
+- Make it automatic and reliable as much as possible
+- Use modern and convenient ecosystem of Rust development
 
 ## Project goals
 
@@ -35,29 +89,44 @@ Almost the same day, I learned about Rust as well :crab:
 
 ## Anticipated features
 
-- [x] Basic dual arithmetics as standalone feature
+You are very welcome to introduce [issues](https://github.com/djmaxus/autodj/issues/new/choose) to promote most wanted features or to report a bug.
+
+- [x] Generic implementation of dual numbers
 - Number of variables to differentiate
   - [x] single
   - multiple
     - [x] static
-    - [ ] dynamic
+    - [x] dynamic
+    - [ ] sparse
   - [ ] Jacobians for efficient layouts in memory
+- [ ] Named variables (UUID-based)
 - [ ] Calculation tracking (partial derivatives of intermediate values)
 - Third-party crates support (as features)
   - [ ] `num`
-  - [ ] linear algebra crates
-- [ ] Implement dual arithmetics as pure trait, then implement it for a few structures
+  - [ ] linear algebra crates (`nalgebra` etc.)
 - Advanced features
+  - [ ] Arbitrary number types beside `f64`
   - [ ] Inter-operability of different dual types (e.g., single and multiple dynamic)
-  - [ ] Arbitrary type of dual number components
-  - [ ] Rust-alike safety of interfaces
-
-    e.g., `Fn(...) -> Result<_,_>` for binary operations and UUID-based tracking of variables
-
   - [ ] Numerical verification (or replacement) of derivatives (by definition)
   - [ ] Macro for automatic extensions of regular (i.e. non-dual) functions
-  - [ ] no `std`
   - [ ] Optional calculation of derivatives
     - [ ] Iterator implementation as possible approach to lazy evaluation
 
-You are very welcome to introduce [issues](https://github.com/djmaxus/autodj/issues/new/choose) to promote most wanted features or to report a bug.
+## Comparison with [`autodiff`](https://crates.io/crates/autodiff)
+
+As far as I noticed, `autodj` currently has the following differences
+
+- Multiple variables out of the box
+- `fmt::Display` for statically-known number of variables
+- Left-to-right flow of many operations such as `.into-variables()`, `.eval()`, etc.
+- Number type is restricted to `f64`
+- No utilization of `num` and `nalgebra` crates
+
+Some defferences are planned to be eliminated as noted in the [roadmap](#anticipated-features).
+
+Within this crate, you may study & launch test target `/tests/autodiff.rs`
+to follow some differences.
+
+```shell
+cargo test --test autodiff -- --show-output
+```
