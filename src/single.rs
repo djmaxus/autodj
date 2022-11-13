@@ -1,251 +1,49 @@
-// TODO: reorder items for reading purposes
-use std::{
-    fmt::Debug,
-    ops::{Add, Div, Mul, Neg, Sub},
-};
+//! [`crate::single::DualNumber`] for single variable differentiations
 
-/// Dual numbers as mathematical basis
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub struct DualNumber {
-    val: f64,
-    dual: f64,
-}
-
-impl DualNumber {
-    /// Ordinary ("real") component, just a value
-    pub fn val(&self) -> &f64 {
-        &self.val
-    }
-    /// Dual component, a derivative
-    pub fn deriv(&self) -> &f64 {
-        &self.dual
-    }
-    /// An arbitrary dual number
-    pub fn new(val: f64, dual: f64) -> Self {
-        Self { val, dual }
-    }
-}
-
-/// Construct autodifferentiation-specific [`DualNumber`]s and evaluate functions over them
-pub trait Dualize {
-    /// Construct dual varable (with unit dual part)
-    fn var(&self) -> DualNumber;
-
-    /// Construct dual parameter (with zero dual part)
-    fn par(&self) -> DualNumber;
-
-    /// Apply [`DualFunction`] to a value treated as [`DualNumber`] variable
-    fn eval<DF>(&self, func: &DF) -> DualNumber
-    where
-        for<'a> DF: DualFunction<'a>,
-    {
-        func(&self.var())
-    }
-}
-
-impl Dualize for f64 {
-    fn var(&self) -> DualNumber {
-        DualNumber {
-            val: *self,
-            dual: 1.,
-        }
-    }
-
-    fn par(&self) -> DualNumber {
-        DualNumber {
-            val: *self,
-            dual: 0.,
-        }
-    }
-}
-
-impl Add for DualNumber {
-    type Output = DualNumber;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        let val = self.val + rhs.val;
-        let dual = self.dual + rhs.dual;
-        Self { val, dual }
-    }
-}
-
-impl Sub for DualNumber {
-    type Output = DualNumber;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        let val = self.val - rhs.val;
-        let dual = self.dual - rhs.dual;
-        Self { val, dual }
-    }
-}
-
-impl Mul for DualNumber {
-    type Output = DualNumber;
-
-    fn mul(self, rhs: Self) -> Self::Output {
-        let val = self.val * rhs.val;
-        let dual = self.dual * rhs.val + rhs.dual * self.val;
-        Self { val, dual }
-    }
-}
-
-impl Div for DualNumber {
-    type Output = DualNumber;
-
-    fn div(self, rhs: Self) -> Self::Output {
-        let val = self.val / rhs.val;
-        let dual = (self.dual * rhs.val - rhs.dual * self.val) / (rhs.val * rhs.val);
-        Self { val, dual }
-    }
-}
-
-impl Neg for DualNumber {
-    type Output = DualNumber;
-
-    fn neg(self) -> Self::Output {
-        Self {
-            val: -self.val,
-            dual: -self.dual,
-        }
-    }
-}
-
-/// Utility
-impl DualNumber {
-    /// Apply custom function-derivative pair to a [`DualNumber`].\
-    /// May be used to extend the provided set of functions
-    /// ```
-    /// # use autodj::single::*;
-    /// #
-    /// trait OpsExtended{
-    ///     fn powi(self, n: i32) -> Self;
-    /// }
-    ///
-    /// impl OpsExtended for DualNumber {
-    ///     fn powi(self, n: i32) -> Self {
-    ///         self.custom(
-    ///             &|x : f64| x.powi(n),//
-    ///             &|x : f64| x.powi(n - 1) * (n as f64)
-    ///         )
-    ///     }
-    /// }
-    ///
-    /// let x = std::f64::consts::PI;
-    /// let n = 2;
-    /// let f = x.var().powi(n);
-    /// # assert_eq!(f,DualNumber::new(x.powi(n), x.powi(n - 1) * (n as f64)));
-    /// ```
-    pub fn custom<F, D>(&self, func: &F, deriv: &D) -> Self
-    where
-        F: Fn64,
-        D: Fn64,
-    {
-        Self {
-            val: func(self.val),
-            dual: self.dual * deriv(self.val),
-        }
-    }
-
-    /// Apply [`DualFunction`] to a [`DualNumber`]
-    pub fn eval<DF>(&self, func: &DF) -> Self
-    where
-        for<'a> DF: DualFunction<'a>,
-    {
-        func(self)
-    }
-
-    fn chain_of(self, val: f64, deriv: f64) -> Self {
-        Self {
-            val,
-            dual: deriv * self.dual,
-        }
-    }
-}
-
-/// commonly used functions
-impl DualNumber {
-    pub fn powf(self, p: f64) -> Self {
-        self.custom(
-            &|x: f64| x.powf(p), //
-            &|x: f64| x.powf(p - 1.) * p,
-        )
-    }
-
-    pub fn sin(self) -> Self {
-        let (sin, cos) = self.val.sin_cos();
-        self.chain_of(sin, cos)
-    }
-
-    pub fn cos(self) -> Self {
-        let (sin, cos) = self.val.sin_cos();
-        self.chain_of(cos, -sin)
-    }
-
-    pub fn sin_cos(self) -> (Self, Self) {
-        let (sin, cos) = self.val.sin_cos();
-        (self.chain_of(sin, cos), self.chain_of(cos, -sin))
-    }
-
-    pub fn exp(self) -> Self {
-        let val = self.val.exp();
-        self.chain_of(val, val)
-    }
-
-    pub fn ln(self) -> Self {
-        self.custom(
-            &|x: f64| x.ln(), //
-            &|x: f64| 1. / x,
-        )
-    }
-
-    pub fn abs(self) -> Self {
-        self.custom(
-            &|x: f64| x.abs(), //
-            &|x: f64| x.signum(),
-        )
-    }
-
-    pub fn signum(self) -> Self {
-        self.custom(
-            &|x: f64| x.signum(), //
-            &|_| 0.,
-        )
-    }
-}
-
-/// "Trait alias" for transforms within [`DualNumber`]'s domain
-/// ```
+/// Single variable specialization
+///```
 /// # use autodj::single::*;
-/// #
-/// fn compose_dual_functions<DFnI, DFnII>(
-///     df_i : &DFnI,
-///     df_ii: &DFnII,
-///       arg: &f64
-/// ) -> DualNumber
-/// where
-///     for<'a> DFnI  : DualFunction<'a>,
-///     for<'a> DFnII : DualFunction<'a>,
-/// {
-///     arg.eval(df_i).eval(df_ii)
-/// }
-///
-/// let square   = |var : &_| *var * *var;
-/// let plus_one = |var : &_| *var + 1.0.par();
-///
-/// let x = 2.;
-///
-/// let y = compose_dual_functions(&square, &plus_one, &x);
-/// # assert_eq!(y, DualNumber::new(x*x+1.,2.*x));
+/// let x0 : DualNumber = 1.0.into(); // Parameter
+/// let x = 3.0.into_variable();
+/// let f = (x - x0).powi(2);
+/// assert_eq!(f.value(), 4.);
+/// assert_eq!(f.deriv(), 4.);
 /// ```
+pub type DualNumber = DualCommon<f64>;
 
-pub trait DualFunction<'a>: FnBorrowXY<'a, DualNumber, DualNumber> {}
-impl<'a, F> DualFunction<'a> for F where F: FnBorrowXY<'a, DualNumber, DualNumber> {}
+impl Copy for DualNumber {}
 
-use crate::common::{Fn64, FnBorrowXY};
-
-// Unit tests
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test() {}
+impl DualNumber {
+    /// Construct a variable
+    pub fn variable(real: f64) -> Self {
+        Self { real, dual: 1. }
+    }
+    /// Get the derivative (dual component)
+    pub fn deriv(&self) -> f64 {
+        self.dual
+    }
+    /// Evaluate a function over the dual number
+    pub fn eval<Out>(&self, func: impl Fn(DualNumber) -> Out) -> Out {
+        func(*self)
+    }
 }
+
+/// Trait for a type that can be converted into a single variable
+pub trait IntoVariable {
+    /// Convert into a variable
+    fn into_variable(self) -> DualNumber;
+}
+
+impl IntoVariable for f64 {
+    fn into_variable(self) -> DualNumber {
+        DualNumber::variable(self)
+    }
+}
+
+impl DualComponent for f64 {
+    fn zero() -> Self {
+        0.
+    }
+}
+
+use crate::common::{DualCommon, DualComponent};
