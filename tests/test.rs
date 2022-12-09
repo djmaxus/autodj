@@ -1,7 +1,5 @@
 //! Integration tests for [`autodj`]
 
-
-
 mod ideal_gas {
     use autodj::common::*;
 
