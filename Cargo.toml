@@ -26,8 +26,8 @@ default = []
 [dev-dependencies]
 autodiff = ">=0"
 
-[package.metadata.docs.rs]
-cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
+# [package.metadata.docs.rs]
+# cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
 
 ## trying to include examples in docs.rs page
 # [[example]]
