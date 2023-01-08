@@ -8,66 +8,85 @@
 **AUTO**matic **D**erivatives & **J**acobians
 by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/autodj/issues)
 
-- [x] **Single variables**
-
-  ```rust
-  use autodj::single::*;
-
-  let x : DualNumber = 2.0.into_variable();
-
-  let f = x * x + &1.0.into(); // can be borrowed for arithmetic operations
-
-  assert_eq!(f.value(), 5.0);
-  assert_eq!(f.deriv(), 4.0);
-  assert_eq!(format!("{f}"), "5+4∆"); // fmt::Display resembles Taylor expansion
-  ```
-
-- [x] **Multiple variables**
-      They are based on **multiple dual components**
-      and **don't require 'backward' differentiation** to be efficient
-      since each partial derivative is tracked separately from the start
-
-  - **Static** number of variables
-
-    ```rust
-    use autodj::array::*;
-
-    let vars : DualVariables<2> = [2.0, 3.0].into_variables(); // consistent set of independent variables
-    let [x, y] = vars.get().to_owned();
-
-    let f = x * (y - 1.0.into());
-
-    assert_eq!(f.value(), 4.);
-    assert_eq!(f.grad() , &[2., 2.]);
-    assert_eq!(format!("{f}"), "4+[2.0, 2.0]∆");
-    ```
-
-  - **Dynamic** number of variables
-
-    ```rust
-    use autodj::vector::*;
-
-    let x : DualVariables = vec![1., 2., 3., 4., 5.].into_variables();
-
-    let f : DualNumber = x.get().iter().map(|x : &DualNumber| x * &2.0.into()).sum();
-
-    assert_eq!(f.value(), 30.);
-    f.grad().iter().for_each(|deriv| assert_eq!(deriv, &2.0) );
-    ```
-
-- [x] **Generic implementation**
-
-  ```rust
-  use autodj::common::DualCommon; // can be specialized for your needs
-  ```
-
-## Contents
-
-- [Contents](#contents)
+- [Functionality](#functionality)
+  - [Single variables](#single-variables)
+  - [Multiple variables](#multiple-variables)
+  - [Generic dual numbers](#generic-dual-numbers)
 - [Motivation](#motivation)
 - [Project goals](#project-goals)
 - [Anticipated features](#anticipated-features)
 - [Comparison with `autodiff`](#comparison-with-autodiff)
+
+## Functionality
+
+### Single variables
+
+```rust
+use autodj::single::*;
+
+let x : DualNumber = 2.0.into_variable();
+
+// values can be borrowed for arithmetic operations
+let f = x * x + &1.0.into();
+
+assert_eq!(f.value(), 5.0);
+assert_eq!(f.deriv(), 4.0);
+
+// fmt::Display resembles Taylor expansion
+assert_eq!(format!("{f}"), "5+4∆");
+```
+
+### Multiple variables
+
+Multivariate differentiation is based on **multiple dual components**.
+Such an approach requires **no repetitive and "backward" differentiations**.
+Each partial derivative is tracked separately from the start,
+and no repetitive calculations are made.
+
+For built-in multivariate specializations,
+independent variables can be created consistently using `.into_variables()` method.
+
+#### Static number of variables
+
+```rust
+use autodj::array::*;
+
+// consistent set of independent variables
+let vars : DualVariables<2> = [2.0, 3.0].into_variables();
+let [x, y] = vars.get().to_owned();
+
+let f = x * (y - 1.0.into());
+
+assert_eq!(f.value(), 4.);
+assert_eq!(f.grad() , &[2., 2.]);
+assert_eq!(format!("{f}"), "4+[2.0, 2.0]∆");
+  ```
+
+#### Dynamic number of variables
+
+```rust
+use autodj::vector::*;
+
+let x : DualVariables = vec![1., 2., 3., 4., 5.].into_variables();
+
+let f : DualNumber = x.get()
+                      .iter()
+                      .map(|x : &DualNumber| x * &2.0.into())
+                      .sum();
+
+assert_eq!(f.value(), 30.);
+
+f.grad()
+ .iter()
+ .for_each(|deriv| assert_eq!(deriv, &2.0) );
+```
+
+### Generic dual numbers
+
+```rust
+// can be specialized for your needs
+use autodj::common::Common;
+```
 
 ## Motivation
 
@@ -84,12 +103,13 @@ Then, I decided to:
 
 ## Project goals
 
-- Develop open-source automatic differentiation library for both _academic_ and _commercial_ computational mathematitians
+- Develop open-source automatic differentiation library for both _academic_ and _commercial_ computational mathematicians
 - Gain experience of Rust programming
 
 ## Anticipated features
 
-You are very welcome to introduce [issues](https://github.com/djmaxus/autodj/issues/new/choose) to promote most wanted features or to report a bug.
+You are very welcome to introduce [issues](https://github.com/djmaxus/autodj/issues/new/choose)
+to promote most wanted features or to report a bug.
 
 - [x] Generic implementation of dual numbers
 - Number of variables to differentiate
@@ -122,7 +142,7 @@ As far as I noticed, `autodj` currently has the following differences
 - Number type is restricted to `f64`
 - No utilization of `num` and `nalgebra` crates
 
-Some defferences are planned to be eliminated as noted in the [roadmap](#anticipated-features).
+Some differences are planned to be eliminated as noted in the [roadmap](#anticipated-features).
 
 Within this crate, you may study & launch test target `/tests/autodiff.rs`
 to follow some differences.
