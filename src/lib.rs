@@ -1,4 +1,13 @@
-#![warn(missing_docs)]
+#![warn(
+    missing_docs,
+    clippy::pedantic,
+    unused,
+    unreachable_pub,
+    unused_results,
+    unused_import_braces,
+    unused_lifetimes,
+    unused_qualifications
+)]
 //! # Automatic Differentiation Library
 //!
 //! by [djmaxus](https://djmaxus.github.io/)
@@ -26,3 +35,5 @@ pub struct ReadmeDoctests;
 // NOTE: test coverage setup
 // - https://doc.rust-lang.org/rustc/instrument-coverage.html
 // - https://blog.rng0.io/how-to-do-code-coverage-in-rust
+// - https://about.codecov.io/
+// - https://coveralls.io/
