@@ -24,7 +24,7 @@ rust-cov export \
     tests/** \
     >target/coverage/rust.lcov
 
-# zsh ./grcov.sh
+zsh ./grcov.sh
 
 rust-cov report \
     --color --use-color=true \
@@ -32,6 +32,7 @@ rust-cov report \
     --instr-profile="target/coverage/coverage.profdata" \
     --object target/debug/doctestbins/**/rust_out \
     --object target/debug/deps/test-* \
+    --object target/debug/deps/autodj-* \
     --show-branch-summary --show-region-summary --show-branch-summary \
     --ignore-filename-regex='/.cargo/registry' \
     src/** \
