@@ -9,16 +9,18 @@
 /// assert_eq!(f.value(), 4.);
 /// assert_eq!(f.deriv(), 4.);
 /// ```
-pub type DualNumber = DualCommon<f64>;
+pub type DualNumber = Common<f64>;
 
 impl Copy for DualNumber {}
 
 impl DualNumber {
     /// Construct a variable
+    #[must_use]
     pub fn variable(real: f64) -> Self {
         Self { real, dual: 1. }
     }
     /// Get the derivative (dual component)
+    #[must_use]
     pub fn deriv(&self) -> f64 {
         self.dual
     }
@@ -46,4 +48,4 @@ impl DualComponent for f64 {
     }
 }
 
-use crate::common::{DualCommon, DualComponent};
+use crate::common::{Common, DualComponent};

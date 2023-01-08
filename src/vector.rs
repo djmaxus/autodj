@@ -1,7 +1,7 @@
 //! [`crate::vector::DualNumber`] for dynamic number of variables
 
 /// Specialization for dynamic number of variables
-pub type DualNumber = crate::common::DualCommon<Vector>;
+pub type DualNumber = crate::common::Common<Vector>;
 
 /// Dynamic dense dual component
 #[derive(Clone, Debug, PartialEq)]
@@ -9,6 +9,7 @@ pub struct Vector(Vec<f64>);
 
 impl DualNumber {
     /// Refer to the gradient (dual component)
+    #[must_use]
     pub fn grad(&self) -> &Vec<f64> {
         &self.dual.0
     }
@@ -27,6 +28,7 @@ pub struct DualVariables {
 
 impl DualVariables {
     /// Access dual variables
+    #[must_use]
     pub fn get(&self) -> &Vec<DualNumber> {
         &self.variables
     }
@@ -116,7 +118,7 @@ impl Mul<f64> for &Vector {
 
 impl MulAssign<f64> for Vector {
     fn mul_assign(&mut self, rhs: f64) {
-        self.0.iter_mut().for_each(|x| *x *= rhs)
+        self.0.iter_mut().for_each(|x| *x *= rhs);
     }
 }
 
@@ -194,7 +196,7 @@ impl SubAssign<&Vector> for Vector {
 
 impl AddAssign for Vector {
     fn add_assign(&mut self, rhs: Self) {
-        *self += &rhs
+        *self += &rhs;
     }
 }
 

@@ -2,12 +2,12 @@
 
 /// Common structure of dual numbers
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
-pub struct DualCommon<D: DualComponent> {
+pub struct Common<D: DualComponent> {
     pub(crate) real: f64,
     pub(crate) dual: D,
 }
 
-impl<D: DualComponent> DualCommon<D> {
+impl<D: DualComponent> Common<D> {
     /// Return the real component
     pub fn value(&self) -> f64 {
         self.real
@@ -30,7 +30,7 @@ where
     fn zero() -> Self;
 }
 
-impl<D: DualComponent> From<f64> for DualCommon<D> {
+impl<D: DualComponent> From<f64> for Common<D> {
     fn from(real: f64) -> Self {
         Self {
             real,
@@ -39,7 +39,7 @@ impl<D: DualComponent> From<f64> for DualCommon<D> {
     }
 }
 
-impl<D: DualComponent> std::fmt::Display for DualCommon<D>
+impl<D: DualComponent> Display for Common<D>
 where
     D: Display,
 {
@@ -48,7 +48,7 @@ where
     }
 }
 
-impl<D: DualComponent> LowerExp for DualCommon<D>
+impl<D: DualComponent> LowerExp for Common<D>
 where
     D: LowerExp,
 {
@@ -62,12 +62,13 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-impl<D: DualComponent> DualCommon<D>
+impl<D: DualComponent> Common<D>
 where
     D: Clone,
 {
     /// Chain rule implementation
     /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
+    #[must_use]
     pub fn chain<F>(&self, func: F) -> Self
     where
         F: Fn(f64) -> (f64, f64),
@@ -80,13 +81,15 @@ where
     }
 
     /// Raise to a floating-point power
+    #[must_use]
     pub fn powf(&self, exp: f64) -> Self {
         self.chain(|x| (x.powf(exp), x.powf(exp - 1.) * exp))
     }
 
     /// Raise to an integer power
+    #[must_use]
     pub fn powi(&self, exp: i32) -> Self {
-        self.chain(|x| (x.powi(exp), x.powi(exp - 1) * (exp as f64)))
+        self.chain(|x| (x.powi(exp), x.powi(exp - 1) * f64::from(exp)))
     }
 
     /// Sine
@@ -97,6 +100,7 @@ where
     /// assert!((x.value() - 0.0).abs() <= f64::EPSILON);
     /// assert_eq!(x.deriv(), 1.0);
     /// ```
+    #[must_use]
     pub fn sin(&self) -> Self {
         let (sin, cos) = self.real.sin_cos();
         self.chain(|_| (sin, cos))
@@ -110,33 +114,39 @@ where
     /// assert!((x.value() - 0.0).abs() <= f64::EPSILON);
     /// assert_eq!(x.deriv(), -1.0);
     /// ```
+    #[must_use]
     pub fn cos(&self) -> Self {
         let (sin, cos) = self.real.sin_cos();
         self.chain(|_| (cos, -sin))
     }
 
     /// Exponent
+    #[must_use]
     pub fn exp(&self) -> Self {
         let real = self.real.exp();
         self.chain(|_| (real, real))
     }
 
     /// Natural logarithm
+    #[must_use]
     pub fn ln(&self) -> Self {
         self.chain(|x| (x.ln(), x.recip()))
     }
 
     /// Absolute value
+    #[must_use]
     pub fn abs(&self) -> Self {
         self.chain(|x| (x.abs(), x.signum()))
     }
 
     /// Sign function
+    #[must_use]
     pub fn signum(&self) -> Self {
         self.chain(|x| (x.signum(), 0.))
     }
 
     /// Reciprocal
+    #[must_use]
     pub fn recip(&self) -> Self {
         const UNIT: f64 = 1.0;
         let unit: Self = UNIT.into();
@@ -144,8 +154,8 @@ where
     }
 }
 
-impl<D: DualComponent> Add for DualCommon<D> {
-    type Output = DualCommon<D>;
+impl<D: DualComponent> Add for Common<D> {
+    type Output = Common<D>;
     fn add(self, rhs: Self) -> Self::Output {
         Self::Output {
             real: self.value() + rhs.value(),
@@ -154,8 +164,8 @@ impl<D: DualComponent> Add for DualCommon<D> {
     }
 }
 
-impl<D: DualComponent> Mul for DualCommon<D> {
-    type Output = DualCommon<D>;
+impl<D: DualComponent> Mul for Common<D> {
+    type Output = Common<D>;
 
     fn mul(self, rhs: Self) -> Self::Output {
         let real = self.real * rhs.real;
@@ -166,8 +176,8 @@ impl<D: DualComponent> Mul for DualCommon<D> {
     }
 }
 
-impl<D: DualComponent> Sub for DualCommon<D> {
-    type Output = DualCommon<D>;
+impl<D: DualComponent> Sub for Common<D> {
+    type Output = Common<D>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         Self::Output {
@@ -177,8 +187,8 @@ impl<D: DualComponent> Sub for DualCommon<D> {
     }
 }
 
-impl<D: DualComponent> Div for DualCommon<D> {
-    type Output = DualCommon<D>;
+impl<D: DualComponent> Div for Common<D> {
+    type Output = Common<D>;
 
     fn div(self, rhs: Self) -> Self::Output {
         let real = self.real / rhs.real;
@@ -192,21 +202,21 @@ impl<D: DualComponent> Div for DualCommon<D> {
     }
 }
 
-impl<D: DualComponent> AddAssign for DualCommon<D> {
+impl<D: DualComponent> AddAssign for Common<D> {
     fn add_assign(&mut self, rhs: Self) {
         self.real += rhs.real;
         self.dual += rhs.dual;
     }
 }
 
-impl<D: DualComponent> SubAssign for DualCommon<D> {
+impl<D: DualComponent> SubAssign for Common<D> {
     fn sub_assign(&mut self, rhs: Self) {
         self.real -= rhs.real;
         self.dual -= rhs.dual;
     }
 }
 
-impl<D: DualComponent> DivAssign for DualCommon<D> {
+impl<D: DualComponent> DivAssign for Common<D> {
     fn div_assign(&mut self, rhs: Self) {
         self.real /= rhs.real;
 
@@ -218,7 +228,7 @@ impl<D: DualComponent> DivAssign for DualCommon<D> {
     }
 }
 
-impl<D: DualComponent> MulAssign for DualCommon<D> {
+impl<D: DualComponent> MulAssign for Common<D> {
     fn mul_assign(&mut self, rhs: Self) {
         self.real *= rhs.real;
         self.dual *= rhs.real;
@@ -226,8 +236,8 @@ impl<D: DualComponent> MulAssign for DualCommon<D> {
     }
 }
 
-impl<D: DualComponent> Neg for DualCommon<D> {
-    type Output = DualCommon<D>;
+impl<D: DualComponent> Neg for Common<D> {
+    type Output = Common<D>;
 
     fn neg(self) -> Self::Output {
         Self::Output {
@@ -237,15 +247,15 @@ impl<D: DualComponent> Neg for DualCommon<D> {
     }
 }
 
-/// Basic arithmetic operations for references to DualCommon
+/// Basic arithmetic operations for references to [`DualCommon`]
 pub mod ops_ref {
-    use super::*;
+    use super::{Add, Common, Div, DualComponent, Mul, Sub};
 
-    impl<D: DualComponent> Add for &DualCommon<D>
+    impl<D: DualComponent> Add for &Common<D>
     where
         for<'a> &'a D: Add<Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
         fn add(self, rhs: Self) -> Self::Output {
             Self::Output {
                 real: self.value() + rhs.value(),
@@ -254,11 +264,11 @@ pub mod ops_ref {
         }
     }
 
-    impl<D: DualComponent> Mul for &DualCommon<D>
+    impl<D: DualComponent> Mul for &Common<D>
     where
         for<'a> &'a D: Mul<f64, Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
 
         fn mul(self, rhs: Self) -> Self::Output {
             let real = self.real * rhs.real;
@@ -271,11 +281,11 @@ pub mod ops_ref {
         }
     }
 
-    impl<D: DualComponent> Sub for &DualCommon<D>
+    impl<D: DualComponent> Sub for &Common<D>
     where
         for<'a> &'a D: Sub<Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
 
         fn sub(self, rhs: Self) -> Self::Output {
             Self::Output {
@@ -285,11 +295,11 @@ pub mod ops_ref {
         }
     }
 
-    impl<D: DualComponent> Div for &DualCommon<D>
+    impl<D: DualComponent> Div for &Common<D>
     where
         for<'a> &'a D: Mul<f64, Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
 
         fn div(self, rhs: Self) -> Self::Output {
             let real = self.real / rhs.real;
@@ -303,43 +313,43 @@ pub mod ops_ref {
         }
     }
 
-    impl<D: DualComponent> Add<&DualCommon<D>> for DualCommon<D>
+    impl<D: DualComponent> Add<&Common<D>> for Common<D>
     where
         for<'a> &'a D: Add<Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
         fn add(self, rhs: &Self) -> Self::Output {
             &self + rhs
         }
     }
 
-    impl<D: DualComponent> Mul<&DualCommon<D>> for DualCommon<D>
+    impl<D: DualComponent> Mul<&Common<D>> for Common<D>
     where
         for<'a> &'a D: Mul<f64, Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
 
         fn mul(self, rhs: &Self) -> Self::Output {
             &self * rhs
         }
     }
 
-    impl<D: DualComponent> Sub<&DualCommon<D>> for DualCommon<D>
+    impl<D: DualComponent> Sub<&Common<D>> for Common<D>
     where
         for<'a> &'a D: Sub<Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
 
         fn sub(self, rhs: &Self) -> Self::Output {
             &self - rhs
         }
     }
 
-    impl<D: DualComponent> Div<&DualCommon<D>> for DualCommon<D>
+    impl<D: DualComponent> Div<&Common<D>> for Common<D>
     where
         for<'a> &'a D: Mul<f64, Output = D>,
     {
-        type Output = DualCommon<D>;
+        type Output = Common<D>;
 
         fn div(self, rhs: &Self) -> Self::Output {
             &self / rhs
