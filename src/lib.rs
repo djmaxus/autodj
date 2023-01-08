@@ -1,6 +1,7 @@
 #![warn(
     missing_docs,
     clippy::pedantic,
+    clippy::type_repetition_in_bounds,
     unused,
     unreachable_pub,
     unused_results,
