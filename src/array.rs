@@ -9,10 +9,11 @@
 /// assert_eq!(f.value(), 3.);
 /// assert_eq!(f.grad().len(), 2);
 /// ```
-pub type DualNumber<const N: usize> = DualCommon<Array<N>>;
+pub type DualNumber<const N: usize> = Common<Array<N>>;
 
 impl<const N: usize> DualNumber<N> {
     /// Refer to the contained gradient
+    #[must_use]
     pub fn grad(&self) -> &[f64; N] {
         &self.dual.0
     }
@@ -28,8 +29,9 @@ impl<const N: usize> DualNumber<N> {
     assert_eq!(differential.deriv(), 3.);
     ```
     */
-    pub fn differential(&self) -> DualCommon<f64> {
-        DualCommon::<f64> {
+    #[must_use]
+    pub fn differential(&self) -> Common<f64> {
+        Common::<f64> {
             real: self.real,
             dual: self.grad().iter().sum(),
         }
@@ -49,6 +51,7 @@ pub struct DualVariables<const N: usize> {
 
 impl<const N: usize> DualVariables<N> {
     /// Refer to an array of independent variables with their own unit dual component
+    #[must_use]
     pub fn get(&self) -> &[DualNumber<N>; N] {
         &self.variables
     }
@@ -61,7 +64,7 @@ impl<const N: usize> DualVariables<N> {
 
 impl<const N: usize> From<[f64; N]> for DualVariables<N> {
     fn from(values: [f64; N]) -> Self {
-        let mut variables: [DualNumber<N>; N] = values.map(|x| x.into());
+        let mut variables: [DualNumber<N>; N] = values.map(std::convert::Into::into);
         variables.iter_mut().enumerate().for_each(|(i, x)| {
             x.dual.0[i] = 1.;
         });
@@ -181,7 +184,7 @@ impl<const N: usize> SubAssign for Array<N> {
     }
 }
 
-use crate::common::{DualCommon, DualComponent};
+use crate::common::{Common, DualComponent};
 
 use std::{
     fmt::LowerExp,

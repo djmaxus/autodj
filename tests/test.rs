@@ -4,8 +4,8 @@ mod ideal_gas {
     use autodj::common::*;
 
     fn calc_gas_state<D: DualComponent>(
-        [pressure, volume, temperature, moles]: [DualCommon<D>; 4],
-    ) -> DualCommon<D>
+        [pressure, volume, temperature, moles]: [Common<D>; 4],
+    ) -> Common<D>
     where
         D: DualComponent,
     {
