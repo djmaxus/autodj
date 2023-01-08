@@ -17,14 +17,14 @@ impl<D: DualComponent> Common<D> {
 /// Requirements for dual component
 pub trait DualComponent: Sized + Clone + PartialEq
 where
-    Self: Add<Self, Output = Self>,
-    Self: Sub<Self, Output = Self>,
-    Self: Mul<f64, Output = Self>,
-    Self: Div<f64, Output = Self>,
-    Self: Neg<Output = Self>,
-    Self: AddAssign,
-    Self: SubAssign,
-    Self: MulAssign<f64>,
+    Self: Add<Self, Output = Self>
+        + Sub<Self, Output = Self>
+        + Mul<f64, Output = Self>
+        + Div<f64, Output = Self>
+        + Neg<Output = Self>
+        + AddAssign
+        + SubAssign
+        + MulAssign<f64>,
 {
     /// Zero (or just empty) dual component
     fn zero() -> Self;
@@ -39,18 +39,14 @@ impl<D: DualComponent> From<f64> for Common<D> {
     }
 }
 
-impl<D: DualComponent> Display for Common<D>
-where
-    D: Display,
+impl<D: DualComponent + Display> Display for Common<D>
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}{:+}∆", self.real, self.dual)
     }
 }
 
-impl<D: DualComponent> LowerExp for Common<D>
-where
-    D: LowerExp,
+impl<D: DualComponent + LowerExp> LowerExp for Common<D>
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:e}{:e}∆", self.real, self.dual)
@@ -62,9 +58,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-impl<D: DualComponent> Common<D>
-where
-    D: Clone,
+impl<D: DualComponent + Clone> Common<D>
 {
     /// Chain rule implementation
     /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
