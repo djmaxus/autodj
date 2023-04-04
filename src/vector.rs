@@ -4,7 +4,7 @@
 pub type DualNumber = crate::common::Common<Vector>;
 
 /// Dynamic dense dual component
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub struct Vector(Vec<f64>);
 
 impl DualNumber {
