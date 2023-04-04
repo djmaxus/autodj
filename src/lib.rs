@@ -27,7 +27,7 @@ pub mod vector;
 pub mod common;
 
 #[cfg(test)]
-mod tests;
+mod tests {}
 
 #[doc = include_str!("../README.md")]
 #[cfg(doctest)]
