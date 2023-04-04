@@ -15,7 +15,7 @@ impl<D: DualComponent> Common<D> {
 }
 
 /// Requirements for dual component
-pub trait DualComponent: Sized + Clone + PartialEq
+pub trait DualComponent: Sized + Clone + PartialEq + PartialOrd
 where
     Self: Add<Self, Output = Self>
         + Sub<Self, Output = Self>
@@ -39,15 +39,13 @@ impl<D: DualComponent> From<f64> for Common<D> {
     }
 }
 
-impl<D: DualComponent + Display> Display for Common<D>
-{
+impl<D: DualComponent + Display> Display for Common<D> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}{:+}∆", self.real, self.dual)
     }
 }
 
-impl<D: DualComponent + LowerExp> LowerExp for Common<D>
-{
+impl<D: DualComponent + LowerExp> LowerExp for Common<D> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:e}{:e}∆", self.real, self.dual)
     }
@@ -58,8 +56,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-impl<D: DualComponent + Clone> Common<D>
-{
+impl<D: DualComponent + Clone> Common<D> {
     /// Chain rule implementation
     /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
     #[must_use]
@@ -350,3 +347,5 @@ pub mod ops_ref {
         }
     }
 }
+
+impl<T> Copy for Common<T> where T: DualComponent + Copy {}

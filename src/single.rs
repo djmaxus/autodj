@@ -11,8 +11,6 @@
 /// ```
 pub type DualNumber = Common<f64>;
 
-impl Copy for DualNumber {}
-
 impl DualNumber {
     /// Construct a variable
     #[must_use]

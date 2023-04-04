@@ -39,10 +39,8 @@ impl<const N: usize> DualNumber<N> {
 }
 
 /// Array of dual components
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Array<const N: usize>([f64; N]);
-
-impl<const N: usize> Copy for DualNumber<N> {}
 
 /// Keeps independent variables as a whole
 pub struct DualVariables<const N: usize> {
