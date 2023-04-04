@@ -27,6 +27,11 @@ num-traits = "0.2.15"
 
 [dev-dependencies]
 autodiff = ">=0"
+# rayon = ">=0"
+# threadpool = ">=0"
+
+# [profile.release]
+# debug = true
 
 # [package.metadata.docs.rs]
 # cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
