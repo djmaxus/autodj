@@ -34,7 +34,10 @@ mod tests {}
 pub struct ReadmeDoctests;
 
 // NOTE: test coverage setup
+// Anyway, it requires manual generation of coverage
 // - https://doc.rust-lang.org/rustc/instrument-coverage.html
 // - https://blog.rng0.io/how-to-do-code-coverage-in-rust
 // - https://about.codecov.io/
+//
+// No current Rust support, but nice looking platform
 // - https://coveralls.io/
