@@ -18,6 +18,7 @@ license = "MIT OR Apache-2.0"
 default = []
 
 [dependencies]
+auto_ops = "0.3.0"
 nalgebra = "0.32.2"
 num-traits = "0.2.15"
 # num-traits = { version = ">=0", optional = true }
