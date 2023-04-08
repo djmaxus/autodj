@@ -60,9 +60,9 @@ impl<const N: usize> DualVariables<N> {
     }
 }
 
-impl<const N: usize> From<[f64; N]> for DualVariables<N> {
-    fn from(values: [f64; N]) -> Self {
-        let mut variables: [DualNumber<N>; N] = values.map(std::convert::Into::into);
+impl<const N: usize,T : Into<[f64;N]>> From<T> for DualVariables<N> {
+    fn from(values: T) -> Self {
+        let mut variables: [DualNumber<N>; N] = Into::into(values).map(Into::into);
         variables.iter_mut().enumerate().for_each(|(i, x)| {
             x.dual.0[i] = 1.;
         });
@@ -76,9 +76,9 @@ pub trait IntoVariables<const N: usize> {
     fn into_variables(self) -> DualVariables<N>;
 }
 
-impl<const N: usize> IntoVariables<N> for [f64; N] {
+impl<T,const N: usize> IntoVariables<N> for T where T : Into<[f64; N]> {
     fn into_variables(self) -> DualVariables<N> {
-        self.into()
+        self.into().into()
     }
 }
 
