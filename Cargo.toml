@@ -28,6 +28,7 @@ num-traits = "0.2.15"
 
 [dev-dependencies]
 autodiff = ">=0"
+# rusty-hook = "^0.11.2"
 # rayon = ">=0"
 # threadpool = ">=0"
 
