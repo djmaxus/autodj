@@ -57,6 +57,7 @@ use std::{
 };
 
 impl<D: DualComponent + Clone> Common<D> {
+    // TODO: maybe this method should operate with some lazy-evaluated entities
     /// Chain rule implementation
     /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
     #[must_use]
