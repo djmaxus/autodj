@@ -124,28 +124,37 @@ fn main() -> Result<(), Box<dyn Error>> {
     let ode_scheme = OdeScheme::InterMediate(Fraction::try_from(0.5)?);
 
     let x1: V2<f64> = x0 + dt * calc_x_dot(x0, kappa);
-    let residual = calc_residual(kappa, [x0, x1], dt, ode_scheme);
-    dbg!(residual);
+    let x_approx = x1;
+    let residual = calc_residual(kappa, [x0, x_approx], dt, ode_scheme);
+    println!("{residual}");
 
-    let vars: DualVariables<2> = x1.into_variables();
+    let vars: DualVariables<2> = x_approx.into_variables();
 
     let x0 = x0.into_s_vector::<Dual2>();
-    let x1 = vars.get().into_s_vector::<Dual2>();
+    let x_approx = vars.get().into_s_vector::<Dual2>();
 
-    let residual_dual = calc_residual(kappa, [x0, x1], dt, ode_scheme);
-    dbg!(residual_dual);
+    let residual_dual = calc_residual(kappa, [x0, x_approx], dt, ode_scheme);
+    println!("{residual_dual}");
 
-    dbg!(residual_dual.map(|x| x.value()).norm());
+    dbg!(residual_dual.iter().map(|x| x.value().abs()).sum::<f64>());
 
     residual
         .iter()
         .zip(residual_dual.iter())
         .for_each(|(a, b)| assert_eq!(a, &b.value()));
 
-    // construct Jacobian
-    let J: M2<f64>;
+    let jacobian = M2::<f64>::from_row_iterator(
+        residual_dual
+            .iter()
+            .flat_map(|equation| equation.grad().to_owned()),
+    );
 
-    // verify Derivatives: calc_residual.prove(params).calc(...) -> Result<Out,Err>
+    let residual = V2::<f64>::from_iterator(residual_dual.iter().map(|equation| equation.value()));
+
+    println!("{jacobian}");
+
+    let increment = jacobian.qr().solve(&residual).unwrap();
+    dbg!(increment);
 
     Ok(())
 }
