@@ -117,44 +117,68 @@ impl<const N: usize, InputArray: Into<[Input; N]>, Input> IntoSVector<Input, N> 
     }
 }
 
+fn newton_iterations<F>(
+    calc_residual: F,
+    x_approx: V2<f64>,
+    num_iterations: usize,
+    tolerance: f64,
+) -> (V2<f64>, Option<f64>)
+where
+    F: Fn(V2<Dual2>) -> V2<Dual2>,
+{
+    let tolerance = tolerance.abs();
+
+    let mut x = x_approx;
+    let mut error = Option::None;
+
+    for _ in 0..num_iterations {
+        let vars: DualVariables<2> = x.into_variables();
+        let x_current = vars.get().into_s_vector::<Dual2>();
+
+        let residual_dual = calc_residual(x_current);
+        println!("{}", residual_dual);
+        let residual =
+            V2::<f64>::from_iterator(residual_dual.iter().map(|equation| equation.value()));
+
+        error = Some(residual.norm());
+        dbg!(error);
+
+        if error.unwrap() <= tolerance {
+            break;
+        }
+
+        let jacobian = M2::<f64>::from_row_iterator(
+            residual_dual
+                .iter()
+                .flat_map(|equation| equation.grad().to_owned()),
+        );
+        println!("{}", jacobian);
+
+        let increment = jacobian.qr().solve(&residual).unwrap();
+
+        x -= increment;
+    }
+
+    (x, error)
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let kappa = 1.;
     let x0 = [PI * 0.25, 0.].into_s_vector::<f64>();
-    let dt = 1.0;
-    let ode_scheme = OdeScheme::InterMediate(Fraction::try_from(0.5)?);
+    let dt: f64 = 1.0;
+    let ode_scheme = OdeScheme::InterMediate(Fraction::try_from(1.0)?);
 
-    let x1: V2<f64> = x0 + dt * calc_x_dot(x0, kappa);
-    let x_approx = x1;
-    let residual = calc_residual(kappa, [x0, x_approx], dt, ode_scheme);
-    println!("{residual}");
+    let x0_dual = x0.into_s_vector::<Dual2>();
 
-    let vars: DualVariables<2> = x_approx.into_variables();
+    let x_approx: V2<f64> = x0 + calc_x_dot(x0, kappa) * dt;
 
-    let x0 = x0.into_s_vector::<Dual2>();
-    let x_approx = vars.get().into_s_vector::<Dual2>();
+    let calc_residual_problem = |x0, x_approx| calc_residual(kappa, [x0, x_approx], dt, ode_scheme);
 
-    let residual_dual = calc_residual(kappa, [x0, x_approx], dt, ode_scheme);
-    println!("{residual_dual}");
+    let calc_residual_time_step = |x| calc_residual_problem(x0_dual, x);
 
-    dbg!(residual_dual.iter().map(|x| x.value().abs()).sum::<f64>());
+    let x1 = newton_iterations(calc_residual_time_step, x_approx, 10, 1e-3);
 
-    residual
-        .iter()
-        .zip(residual_dual.iter())
-        .for_each(|(a, b)| assert_eq!(a, &b.value()));
-
-    let jacobian = M2::<f64>::from_row_iterator(
-        residual_dual
-            .iter()
-            .flat_map(|equation| equation.grad().to_owned()),
-    );
-
-    let residual = V2::<f64>::from_iterator(residual_dual.iter().map(|equation| equation.value()));
-
-    println!("{jacobian}");
-
-    let increment = jacobian.qr().solve(&residual).unwrap();
-    dbg!(increment);
+    dbg!(x1);
 
     Ok(())
 }
