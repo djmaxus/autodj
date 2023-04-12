@@ -1,4 +1,5 @@
 use autodj::array::*;
+use ergo_traits::*;
 use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
 use std::{
     error::Error,
@@ -47,7 +48,7 @@ impl RealOps for Dual2 {
 }
 
 fn v_dot<T: RealOps>(u: T, kappa: f64) -> T {
-    u.sin() * Into::<T>::into(kappa)
+    u.sin() * kappa.into_erg()
 }
 
 fn calc_x_dot<T: RealOps>(x: V2<T>, kappa: f64) -> V2<T> {
@@ -55,8 +56,7 @@ fn calc_x_dot<T: RealOps>(x: V2<T>, kappa: f64) -> V2<T> {
 }
 
 fn calc_x_dot_numeric<T: RealOps>(x0: V2<T>, x1: V2<T>, dt: f64) -> V2<T> {
-    let dt = Into::<T>::into(dt);
-    (x1 - x0) / dt
+    (x1 - x0) / dt.into_erg()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -91,13 +91,13 @@ impl OdeScheme {
         match self {
             Self::EulerExplicit => x[0],
             Self::EulerImplicit => x[1],
-            Self::MidPoint => (x[0] + x[1]) * Into::<T>::into(0.5),
+            Self::MidPoint => (x[0] + x[1]) * 0.5.into_erg(),
             Self::InterMediate(Fraction(fraction)) => Self::interpolate(x, fraction.to_owned()),
         }
     }
 
     fn interpolate<T: RealOps>(x: [V2<T>; 2], weight: f64) -> V2<T> {
-        x[0] * Into::<T>::into(1.0 - weight) + x[1] * Into::<T>::into(weight)
+        x[0] * (1.0 - weight).into_erg() + x[1] * weight.into_erg()
     }
 }
 
@@ -136,12 +136,11 @@ where
         let x_current = vars.get().into_s_vector::<Dual2>();
 
         let residual_dual = calc_residual(x_current);
-        println!("{}", residual_dual);
+
         let residual =
             V2::<f64>::from_iterator(residual_dual.iter().map(|equation| equation.value()));
 
-        error = Some(residual.norm());
-        dbg!(error);
+        error = residual.norm().into_some();
 
         if error.unwrap() <= tolerance {
             break;
@@ -152,7 +151,6 @@ where
                 .iter()
                 .flat_map(|equation| equation.grad().to_owned()),
         );
-        println!("{}", jacobian);
 
         let increment = jacobian.qr().solve(&residual).unwrap();
 
@@ -166,7 +164,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let kappa = 1.;
     let x0 = [PI * 0.25, 0.].into_s_vector::<f64>();
     let dt: f64 = 1.0;
-    let ode_scheme = OdeScheme::InterMediate(Fraction::try_from(1.0)?);
+    let ode_scheme = OdeScheme::InterMediate(1.0.try_into()?);
 
     let x0_dual = x0.into_s_vector::<Dual2>();
 
@@ -180,5 +178,5 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     dbg!(x1);
 
-    Ok(())
+    ().into_ok()
 }
