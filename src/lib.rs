@@ -26,6 +26,8 @@ pub mod vector;
 
 pub mod common;
 
+pub mod fluid;
+
 #[cfg(test)]
 mod tests {}
 
