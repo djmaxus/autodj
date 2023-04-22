@@ -1,5 +1,6 @@
 // FIXME: place this in "utils" folder, probably organize as a crate
 
+use ergo_traits::IntoOk;
 use std::{
     error::Error,
     io::{stdout, Write},
@@ -13,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("{status}");
     let code = status.code().ok_or("empty return code")?;
     if code == 0 {
-        return Ok(());
+        return ().into_ok();
     }
     Err(format!("{status}").into())
 }
