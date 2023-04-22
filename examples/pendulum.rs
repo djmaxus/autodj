@@ -1,3 +1,24 @@
+fn main() -> Result<(), Box<dyn Error>> {
+    let kappa = 1.;
+    let x0 = [PI * 0.25, 0.].into_s_vector::<f64>();
+    let dt: f64 = 1.0;
+    let ode_scheme = OdeScheme::InterMediate(1.0.try_into()?);
+
+    let x0_dual = x0.into_s_vector::<Dual2>();
+
+    let x_approx: V2<f64> = x0 + calc_x_dot(x0, kappa) * dt;
+
+    let calc_residual_problem = |x0, x_approx| calc_residual(kappa, [x0, x_approx], dt, ode_scheme);
+
+    let calc_residual_time_step = |x| calc_residual_problem(x0_dual, x);
+
+    let x1 = newton_iterations(calc_residual_time_step, x_approx, 10, 1e-3);
+
+    dbg!(x1);
+
+    ().into_ok()
+}
+
 use autodj::array::*;
 use ergo_traits::*;
 use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
@@ -158,25 +179,4 @@ where
     }
 
     (x, error)
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let kappa = 1.;
-    let x0 = [PI * 0.25, 0.].into_s_vector::<f64>();
-    let dt: f64 = 1.0;
-    let ode_scheme = OdeScheme::InterMediate(1.0.try_into()?);
-
-    let x0_dual = x0.into_s_vector::<Dual2>();
-
-    let x_approx: V2<f64> = x0 + calc_x_dot(x0, kappa) * dt;
-
-    let calc_residual_problem = |x0, x_approx| calc_residual(kappa, [x0, x_approx], dt, ode_scheme);
-
-    let calc_residual_time_step = |x| calc_residual_problem(x0_dual, x);
-
-    let x1 = newton_iterations(calc_residual_time_step, x_approx, 10, 1e-3);
-
-    dbg!(x1);
-
-    ().into_ok()
 }
