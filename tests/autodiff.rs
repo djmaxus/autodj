@@ -17,7 +17,7 @@ fn quadratic() {
     let autodj = {
         fn calculate_quadratic(x: DualNumber) -> DualNumber {
             let shift: DualNumber = 1.0.into();
-            (x - shift).powi(2)
+            (x - shift).powf(2.0)
         }
         x.into_variable().eval(calculate_quadratic)
     };
