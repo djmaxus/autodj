@@ -1,28 +1,29 @@
 //! [`crate::vector::DualNumber`] for dynamic number of variables
 
+pub use crate::fluid::Dual;
+use std::{
+    iter::{Product, Sum},
+    ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign},
+};
+
 /// Specialization for dynamic number of variables
 pub type DualNumber = crate::common::Common<Vector>;
 
 /// Dynamic dense dual component
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, PartialOrd, Default)]
 pub struct Vector(Vec<f64>);
 
 impl DualNumber {
     /// Refer to the gradient (dual component)
     #[must_use]
     pub fn grad(&self) -> &Vec<f64> {
-        &self.dual.0
-    }
-}
-
-impl DualComponent for Vector {
-    fn zero() -> Self {
-        Self(Vec::new())
+        &self.dual().0
     }
 }
 
 /// Dynamic dual variables
 pub struct DualVariables {
+    /// Storage for variables
     variables: Vec<DualNumber>,
 }
 
@@ -36,11 +37,13 @@ impl DualVariables {
     pub fn eval<Out>(&self, func: impl Fn(&Vec<DualNumber>) -> Out) -> Out {
         func(self.get())
     }
+
+    /// Create new set of dual variables from a slice
     fn new(values: &[f64]) -> Self {
         let mut variables: Vec<DualNumber> = values.iter().map(|&x| x.into()).collect();
         variables.iter_mut().enumerate().for_each(|(i, x)| {
-            x.dual.0.resize(i + 1, 0.);
-            x.dual.0[i] = 1.;
+            x.dual_mut().0.resize(i + 1, 0.0_f64);
+            x.dual_mut().0[i] = 1.0_f64;
         });
         Self { variables }
     }
@@ -124,7 +127,7 @@ impl MulAssign<f64> for Vector {
 
 impl<'a> Sum<&'a Self> for DualNumber {
     fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        let init = 0.0.into();
+        let init = 0.0_f64.into();
         let f = |acc, x: &DualNumber| acc + x;
         iter.fold(init, f)
     }
@@ -132,7 +135,7 @@ impl<'a> Sum<&'a Self> for DualNumber {
 
 impl Sum for DualNumber {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-        let init = 0.0.into();
+        let init = 0.0_f64.into();
         let f = |acc, x| acc + x;
         iter.fold(init, f)
     }
@@ -140,7 +143,7 @@ impl Sum for DualNumber {
 
 impl<'a> Product<&'a Self> for DualNumber {
     fn product<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        let init = 1.0.into();
+        let init = 1.0_f64.into();
         let f = |acc, x: &DualNumber| acc * x;
         iter.fold(init, f)
     }
@@ -148,7 +151,7 @@ impl<'a> Product<&'a Self> for DualNumber {
 
 impl Product<Self> for DualNumber {
     fn product<I: Iterator<Item = Self>>(iter: I) -> Self {
-        let init = 1.0.into();
+        let init = 1.0_f64.into();
         let f = |acc, x: DualNumber| acc * x;
         iter.fold(init, f)
     }
@@ -172,7 +175,7 @@ impl AddAssign<&Vector> for Vector {
     fn add_assign(&mut self, rhs: &Self) {
         let new_len = self.0.len().max(rhs.0.len());
 
-        self.0.resize(new_len, 0.0);
+        self.0.resize(new_len, 0.0_f64);
 
         rhs.0
             .iter()
@@ -185,7 +188,7 @@ impl SubAssign<&Vector> for Vector {
     fn sub_assign(&mut self, rhs: &Self) {
         let new_len = self.0.len().max(rhs.0.len());
 
-        self.0.resize(new_len, 0.0);
+        self.0.resize(new_len, 0.0_f64);
 
         rhs.0
             .iter()
@@ -204,7 +207,7 @@ impl SubAssign for Vector {
     fn sub_assign(&mut self, rhs: Self) {
         let new_len = self.0.len().max(rhs.0.len());
 
-        self.0.resize(new_len, 0.0);
+        self.0.resize(new_len, 0.0_f64);
 
         rhs.0
             .iter()
@@ -213,36 +216,29 @@ impl SubAssign for Vector {
     }
 }
 
-use crate::common::DualComponent;
-
-use std::{
-    iter::{Product, Sum},
-    ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign},
-};
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn div() {
-        let a = Vector(vec![1., 2., 3.]);
-        let b = a / 2.;
-        assert_eq!(b, Vector(vec![0.5, 1., 1.5]));
+        let a = Vector(vec![1.0_f64, 2.0_f64, 3.0_f64]);
+        let b = a / 2.0_f64;
+        assert_eq!(b, Vector(vec![0.5_f64, 1.0_f64, 1.5_f64]));
     }
 
     #[test]
     fn neg() {
-        let a = Vector(vec![-1., 2., 0.]);
+        let a = Vector(vec![-1.0_f64, 2.0_f64, 0.0_f64]);
         let b = -a;
-        assert_eq!(b, Vector(vec![1., -2., 0.]));
+        assert_eq!(b, Vector(vec![1.0_f64, -2.0_f64, 0.0_f64]));
     }
 
     #[test]
     fn add_assign() {
-        let a = Vector(vec![1., 2., 3.]);
-        let mut b = Vector(vec![0.5, 1., 1.5]);
+        let a = Vector(vec![1.0_f64, 2.0_f64, 3.0_f64]);
+        let mut b = Vector(vec![0.5_f64, 1.0_f64, 1.5_f64]);
         b += a;
-        assert_eq!(b, Vector(vec![1.5, 3.0, 4.5]));
+        assert_eq!(b, Vector(vec![1.5_f64, 3.0_f64, 4.5_f64]));
     }
 }

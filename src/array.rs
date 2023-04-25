@@ -1,5 +1,13 @@
 //! [`crate::array::DualNumber`] for a specific number of variables
 
+use crate::common::Common;
+use std::{
+    fmt::LowerExp,
+    ops::{Add, AddAssign, Neg, Sub, SubAssign},
+};
+
+pub use crate::fluid::Dual;
+
 /// Data structure specialization
 ///```
 /// use autodj::array::*;
@@ -15,7 +23,7 @@ impl<const N: usize> DualNumber<N> {
     /// Refer to the contained gradient
     #[must_use]
     pub fn grad(&self) -> &[f64; N] {
-        &self.dual.0
+        &self.dual().0
     }
 
     /**
@@ -31,10 +39,7 @@ impl<const N: usize> DualNumber<N> {
     */
     #[must_use]
     pub fn differential(&self) -> Common<f64> {
-        Common::<f64> {
-            real: self.real,
-            dual: self.grad().iter().sum(),
-        }
+        Common::<f64>::new(self.value().to_owned(), self.grad().iter().sum())
     }
 }
 
@@ -44,6 +49,7 @@ pub struct Array<const N: usize>([f64; N]);
 
 /// Keeps independent variables as a whole
 pub struct DualVariables<const N: usize> {
+    /// Array storage of variables
     variables: [DualNumber<N>; N],
 }
 
@@ -64,7 +70,7 @@ impl<const N: usize, T: Into<[f64; N]>> From<T> for DualVariables<N> {
     fn from(values: T) -> Self {
         let mut variables: [DualNumber<N>; N] = Into::into(values).map(Into::into);
         variables.iter_mut().enumerate().for_each(|(i, x)| {
-            x.dual.0[i] = 1.;
+            x.dual_mut().0[i] = 1f64;
         });
         DualVariables { variables }
     }
@@ -85,9 +91,9 @@ where
     }
 }
 
-impl<const N: usize> DualComponent for Array<N> {
-    fn zero() -> Self {
-        Array([0.; N])
+impl<const N: usize> Default for Array<N> {
+    fn default() -> Self {
+        Array([Default::default(); N])
     }
 }
 
@@ -156,6 +162,7 @@ impl<const N: usize> Sub for Array<N> {
     }
 }
 
+/// Common implementation of binary operations
 fn binary_operation<const N: usize, Op>(a: &Array<N>, b: &Array<N>, op: Op) -> Array<N>
 where
     Op: Fn(&mut f64, f64),
@@ -184,10 +191,3 @@ impl<const N: usize> SubAssign for Array<N> {
             .for_each(|(x, &y)| *x -= y);
     }
 }
-
-use crate::common::{Common, DualComponent};
-
-use std::{
-    fmt::LowerExp,
-    ops::{Add, AddAssign, Neg, Sub, SubAssign},
-};

@@ -1,21 +1,46 @@
 //! Common definitions of dual arithmetics
 
+pub use crate::fluid::Dual;
+use std::{
+    fmt::{Display, LowerExp},
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
+};
+
 /// Common structure of dual numbers
 #[derive(Clone, PartialEq, PartialOrd, Debug)]
 pub struct Common<D: DualComponent> {
-    pub(crate) real: f64,
-    pub(crate) dual: D,
+    /// Ordinary value
+    real: f64,
+    /// Derivatives
+    dual: D,
 }
 
-impl<D: DualComponent> Common<D> {
-    /// Return the real component
-    pub fn value(&self) -> f64 {
+impl<D: DualComponent> Dual for Common<D> {
+    type Value = f64;
+
+    fn value(&self) -> Self::Value {
         self.real
+    }
+
+    type Grad = D;
+
+    fn dual(&self) -> &Self::Grad {
+        &self.dual
+    }
+
+    fn new(value: Self::Value, dual: Self::Grad) -> Self {
+        Self { real: value, dual }
+    }
+
+    fn dual_mut(&mut self) -> &mut Self::Grad {
+        &mut self.dual
     }
 }
 
+// FIXME: move to `fluid.rs` and refactor
+// TODO: test `Default` implementations
 /// Requirements for dual component
-pub trait DualComponent: Sized + Clone + PartialEq + PartialOrd
+pub trait DualComponent: Sized + Clone + PartialEq + PartialOrd + Default
 where
     Self: Add<Self, Output = Self>
         + Sub<Self, Output = Self>
@@ -26,15 +51,30 @@ where
         + SubAssign
         + MulAssign<f64>,
 {
-    /// Zero (or just empty) dual component
-    fn zero() -> Self;
+}
+
+impl<D> DualComponent for D where
+    D: Sized
+        + Clone
+        + PartialEq
+        + PartialOrd
+        + Default
+        + Add<Output = D>
+        + Sub<Output = D>
+        + Neg<Output = D>
+        + AddAssign
+        + SubAssign
+        + Mul<f64, Output = D>
+        + Div<f64, Output = D>
+        + MulAssign<f64>
+{
 }
 
 impl<D: DualComponent> From<f64> for Common<D> {
     fn from(real: f64) -> Self {
         Self {
             real,
-            dual: D::zero(),
+            dual: D::default(),
         }
     }
 }
@@ -48,101 +88,6 @@ impl<D: DualComponent + Display> Display for Common<D> {
 impl<D: DualComponent + LowerExp> LowerExp for Common<D> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:e}{:e}∆", self.real, self.dual)
-    }
-}
-
-use std::{
-    fmt::{Display, LowerExp},
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
-};
-
-impl<D: DualComponent + Clone> Common<D> {
-    // TODO: maybe this method should operate with some lazy-evaluated entities
-    /// Chain rule implementation
-    /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
-    #[must_use]
-    pub fn chain<F>(&self, func: F) -> Self
-    where
-        F: Fn(f64) -> (f64, f64),
-    {
-        let (f, df) = func(self.real);
-        Self {
-            real: f,
-            dual: self.dual.clone() * df,
-        }
-    }
-
-    /// Raise to a floating-point power
-    #[must_use]
-    pub fn powf(&self, exp: f64) -> Self {
-        self.chain(|x| (x.powf(exp), x.powf(exp - 1.) * exp))
-    }
-
-    /// Raise to an integer power
-    #[must_use]
-    pub fn powi(&self, exp: i32) -> Self {
-        self.chain(|x| (x.powi(exp), x.powi(exp - 1) * f64::from(exp)))
-    }
-
-    /// Sine
-    /// ```
-    /// use autodj::common::*;
-    /// use autodj::single::*;
-    /// let x = 0.0.into_variable().sin();
-    /// assert!((x.value() - 0.0).abs() <= f64::EPSILON);
-    /// assert_eq!(x.deriv(), 1.0);
-    /// ```
-    #[must_use]
-    pub fn sin(&self) -> Self {
-        let (sin, cos) = self.real.sin_cos();
-        self.chain(|_| (sin, cos))
-    }
-
-    /// Cosine
-    /// ```
-    /// # use autodj::common::*;
-    /// use autodj::single::*;
-    /// let x = core::f64::consts::FRAC_PI_2.into_variable().cos();
-    /// assert!((x.value() - 0.0).abs() <= f64::EPSILON);
-    /// assert_eq!(x.deriv(), -1.0);
-    /// ```
-    #[must_use]
-    pub fn cos(&self) -> Self {
-        let (sin, cos) = self.real.sin_cos();
-        self.chain(|_| (cos, -sin))
-    }
-
-    /// Exponent
-    #[must_use]
-    pub fn exp(&self) -> Self {
-        let real = self.real.exp();
-        self.chain(|_| (real, real))
-    }
-
-    /// Natural logarithm
-    #[must_use]
-    pub fn ln(&self) -> Self {
-        self.chain(|x| (x.ln(), x.recip()))
-    }
-
-    /// Absolute value
-    #[must_use]
-    pub fn abs(&self) -> Self {
-        self.chain(|x| (x.abs(), x.signum()))
-    }
-
-    /// Sign function
-    #[must_use]
-    pub fn signum(&self) -> Self {
-        self.chain(|x| (x.signum(), 0.))
-    }
-
-    /// Reciprocal
-    #[must_use]
-    pub fn recip(&self) -> Self {
-        const UNIT: f64 = 1.0;
-        let unit: Self = UNIT.into();
-        unit / self.clone()
     }
 }
 
@@ -242,6 +187,7 @@ impl<D: DualComponent> Neg for Common<D> {
 /// Basic arithmetic operations for references to [`DualCommon`]
 pub mod ops_ref {
     use super::{Add, Common, Div, DualComponent, Mul, Sub};
+    use crate::fluid::Dual;
 
     impl<D: DualComponent> Add for &Common<D>
     where
@@ -298,7 +244,7 @@ pub mod ops_ref {
             let dual = {
                 let dx_y = &self.dual * rhs.real;
                 let x_dy = &rhs.dual * self.real;
-                let reciprocal_denominator = 1.0 / (rhs.real * rhs.real);
+                let reciprocal_denominator = 1f64 / (rhs.real * rhs.real);
                 (dx_y - x_dy) * reciprocal_denominator
             };
             Self::Output { real, dual }

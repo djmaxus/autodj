@@ -16,11 +16,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     dbg!(x1);
 
-    ().into_ok()
+    Ok(())
 }
 
-use autodj::array::*;
-use ergo_traits::*;
+use autodj::{array::*, fluid::Dual};
 use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
 use std::{
     error::Error,
@@ -64,12 +63,12 @@ impl RealOps for f64 {
 
 impl RealOps for Dual2 {
     fn sin(&self) -> Self {
-        Dual2::sin(self)
+        Dual::sin(self)
     }
 }
 
 fn v_dot<T: RealOps>(u: T, kappa: f64) -> T {
-    u.sin() * kappa.into_erg()
+    u.sin() * T::from(kappa)
 }
 
 fn calc_x_dot<T: RealOps>(x: V2<T>, kappa: f64) -> V2<T> {
@@ -77,7 +76,7 @@ fn calc_x_dot<T: RealOps>(x: V2<T>, kappa: f64) -> V2<T> {
 }
 
 fn calc_x_dot_numeric<T: RealOps>(x0: V2<T>, x1: V2<T>, dt: f64) -> V2<T> {
-    (x1 - x0) / dt.into_erg()
+    (x1 - x0) / T::from(dt)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -112,13 +111,13 @@ impl OdeScheme {
         match self {
             Self::EulerExplicit => x[0],
             Self::EulerImplicit => x[1],
-            Self::MidPoint => (x[0] + x[1]) * 0.5.into_erg(),
+            Self::MidPoint => (x[0] + x[1]) * T::from(0.5),
             Self::InterMediate(Fraction(fraction)) => Self::interpolate(x, fraction.to_owned()),
         }
     }
 
     fn interpolate<T: RealOps>(x: [V2<T>; 2], weight: f64) -> V2<T> {
-        x[0] * (1.0 - weight).into_erg() + x[1] * weight.into_erg()
+        x[0] * T::from(1.0 - weight) + x[1] * T::from(weight)
     }
 }
 
@@ -158,10 +157,13 @@ where
 
         let residual_dual = calc_residual(x_current);
 
-        let residual =
-            V2::<f64>::from_iterator(residual_dual.iter().map(|equation| equation.value()));
+        let residual = V2::<f64>::from_iterator(
+            residual_dual
+                .iter()
+                .map(|equation| equation.value().to_owned()),
+        );
 
-        error = residual.norm().into_some();
+        error = Some(residual.norm());
 
         if error.unwrap() <= tolerance {
             break;

@@ -1,11 +1,14 @@
 //! [`crate::single::DualNumber`] for single variable differentiations
 
+use crate::common::Common;
+pub use crate::fluid::Dual;
+
 /// Single variable specialization
 ///```
 /// # use autodj::single::*;
 /// let x0 : DualNumber = 1.0.into(); // Parameter
 /// let x = 3.0.into_variable();
-/// let f = (x - x0).powi(2);
+/// let f = (x - x0).powf(2.0);
 /// assert_eq!(f.value(), 4.);
 /// assert_eq!(f.deriv(), 4.);
 /// ```
@@ -15,12 +18,12 @@ impl DualNumber {
     /// Construct a variable
     #[must_use]
     pub fn variable(real: f64) -> Self {
-        Self { real, dual: 1. }
+        Self::new(real, 1f64)
     }
     /// Get the derivative (dual component)
     #[must_use]
     pub fn deriv(&self) -> f64 {
-        self.dual
+        *self.dual()
     }
     /// Evaluate a function over the dual number
     pub fn eval<Out>(&self, func: impl Fn(DualNumber) -> Out) -> Out {
@@ -39,11 +42,3 @@ impl IntoVariable for f64 {
         DualNumber::variable(self)
     }
 }
-
-impl DualComponent for f64 {
-    fn zero() -> Self {
-        0.
-    }
-}
-
-use crate::common::{Common, DualComponent};

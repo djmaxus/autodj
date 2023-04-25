@@ -65,10 +65,10 @@ Update-------: r({moles}) = {:e}"#,
 
         // Newton-like iteration
         const W: f64 = 1.5;
-        const WEIGTS: [f64; 2] = [W, 1. - W];
+        const WEIGHTS: [f64; 2] = [W, 1. - W];
 
-        let moles = moles_initial - WEIGTS[0] * initial.value() / initial.grad()[0];
-        let volume = volume_initial - WEIGTS[1] * initial.value() / initial.grad()[1];
+        let moles = moles_initial - WEIGHTS[0] * initial.value() / initial.grad()[0];
+        let volume = volume_initial - WEIGHTS[1] * initial.value() / initial.grad()[1];
 
         let update = [moles, volume].into_variables().eval(vector_func);
 
@@ -82,7 +82,7 @@ Update-------: r({moles}, {volume}) = {:e}"#,
 }
 
 mod vector {
-    use autodj::vector::*;
+    use autodj::{fluid::Dual, vector::*};
 
     #[test]
     fn vector_multiple() {
