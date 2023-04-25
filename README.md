@@ -11,6 +11,8 @@ by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/au
 - [Functionality](#functionality)
   - [Single variables](#single-variables)
   - [Multiple variables](#multiple-variables)
+    - [Static number of variables](#static-number-of-variables)
+    - [Dynamic number of variables](#dynamic-number-of-variables)
   - [Generic dual numbers](#generic-dual-numbers)
 - [Motivation](#motivation)
 - [Project goals](#project-goals)
