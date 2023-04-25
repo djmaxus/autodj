@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# TODO: check if this works on Windows
-
-cargo run --quiet --release --bin=pre_commit
