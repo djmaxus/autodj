@@ -23,7 +23,7 @@ impl<const N: usize> DualNumber<N> {
     /// Refer to the contained gradient
     #[must_use]
     pub fn grad(&self) -> &[f64; N] {
-        &self.dual().0
+        &self.dual_borrow().0
     }
 
     /**
