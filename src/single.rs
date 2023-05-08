@@ -23,7 +23,7 @@ impl DualNumber {
     /// Get the derivative (dual component)
     #[must_use]
     pub fn deriv(&self) -> f64 {
-        *self.dual()
+        self.dual()
     }
     /// Evaluate a function over the dual number
     pub fn eval<Out>(&self, func: impl Fn(DualNumber) -> Out) -> Out {

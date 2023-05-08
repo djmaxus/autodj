@@ -2,6 +2,7 @@
 
 pub use crate::fluid::Dual;
 use std::{
+    borrow::Borrow,
     fmt::{Display, LowerExp},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
@@ -24,8 +25,8 @@ impl<D: DualComponent> Dual for Common<D> {
 
     type Grad = D;
 
-    fn dual(&self) -> &Self::Grad {
-        &self.dual
+    fn dual(&self) -> Self::Grad {
+        self.dual.to_owned()
     }
 
     fn new(value: Self::Value, dual: Self::Grad) -> Self {
@@ -34,6 +35,14 @@ impl<D: DualComponent> Dual for Common<D> {
 
     fn dual_mut(&mut self) -> &mut Self::Grad {
         &mut self.dual
+    }
+
+    fn value_mut(&mut self) -> &mut Self::Value {
+        &mut self.real
+    }
+
+    fn dual_borrow(&self) -> &Self::Grad {
+        self.dual.borrow()
     }
 }
 
