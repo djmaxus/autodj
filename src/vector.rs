@@ -17,7 +17,7 @@ impl DualNumber {
     /// Refer to the gradient (dual component)
     #[must_use]
     pub fn grad(&self) -> &Vec<f64> {
-        &self.dual().0
+        &self.dual_borrow().0
     }
 }
 

@@ -1,41 +1,63 @@
 //! [`Dual`] trait as behavior definition
 
 use num_traits::{real::Real, One, Zero};
-use std::ops::MulAssign;
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// An ordinary Value
-pub trait Value: Real {}
-impl<R: Real> Value for R {}
+pub trait Value: Real + AddAssign + MulAssign + SubAssign {}
+impl<R> Value for R where R: Real + AddAssign + MulAssign + SubAssign {}
 
 /// Derivatives
 pub trait Grad<V: Value>
 where
-    Self: Clone + MulAssign<V>,
+    Self: Clone + AddAssign + SubAssign + Neg<Output = Self> + MulAssign<V> + Mul<V, Output = Self>,
 {
 }
-impl<V: Value, G> Grad<V> for G where G: Clone + MulAssign<V> {}
+impl<V: Value, G> Grad<V> for G where
+    G: Clone + AddAssign + SubAssign + Neg<Output = Self> + MulAssign<V> + Mul<V, Output = Self>
+{
+}
 
-// NOTE: foreign traits (e.g. `std::ops::*`) can be implemented for solid structs only,
-// TODO: but I can bound this trait correspondingly
-// FIXME: naming conventions for real and dual components
-// TODO: generic impls of arithmetic operations
-// TODO: arithmetics on borrowed values
+// TODO: implement parameters and independent variables there
+// TODO: consistent naming convention for real and dual components (for both fluid & solid)
+// TODO: std::ops::Index(Mut) ?
+// TODO: reduce cloning
+// TODO: find ways to reduce boilerplate
+// NOTE: foreign traits (e.g. `std::ops::*`) can be implemented for solid structs only.
+// That's why we have separate implementations down below + trait bounds right below
 /// Common behavior of dual numbers
 pub trait Dual
 where
-    Self: Sized,
+    Self: Sized
+        + Clone
+        + Add<Output = Self>
+        + Mul<Output = Self>
+        + Sub<Output = Self>
+        + Div<Output = Self>
+        + AddAssign
+        + DivAssign
+        + MulAssign
+        + SubAssign
+        + Neg,
 {
     /// Associated [`Value`] implementor
     type Value: Value;
 
-    /// Borrow [`Dual::Value`]
+    /// Copy [`Dual::Value`]
     fn value(&self) -> Self::Value;
+
+    /// Mutate [`Dual::Value`]
+    fn value_mut(&mut self) -> &mut Self::Value;
 
     /// Associated [`Grad`] implementor
     type Grad: Grad<Self::Value>;
 
+    // TODO: consider also taking dual consuming `self`
+    /// Clone [`Dual::Grad`]
+    fn dual(&self) -> Self::Grad;
+
     /// Borrow [`Dual::Grad`]
-    fn dual(&self) -> &Self::Grad;
+    fn dual_borrow(&self) -> &Self::Grad;
 
     /// Mutably borrow [`Dual::Grad`]
     fn dual_mut(&mut self) -> &mut Self::Grad;
@@ -52,7 +74,7 @@ where
     {
         let (f, df) = func(self.value());
         let dual_new = {
-            let mut dual = self.dual().clone();
+            let mut dual = self.dual();
             dual *= df;
             dual
         };
@@ -69,20 +91,19 @@ where
     /// Differentiable [`Real::sin`]
     #[must_use]
     fn sin(&self) -> Self {
-        let (sin, cos) = self.value().sin_cos();
-        self.chain(|_| (sin, cos))
+        self.sin_cos().0 // TODO: check if the other tuple member is optimized out
     }
 
     /// Differentiable [`Real::cos`]
     #[must_use]
     fn cos(&self) -> Self {
-        let (sin, cos) = self.value().sin_cos();
-        self.chain(|_| (cos, -sin))
+        self.sin_cos().1 // TODO: check if the other tuple member is optimized out
     }
 
     /// Differentiable [`Real::sin_cos`]
     fn sin_cos(&self) -> (Self, Self) {
-        todo!()
+        let (sin, cos) = self.value().sin_cos();
+        (self.chain(|_| (sin, cos)), self.chain(|_| (cos, -sin)))
     }
 
     /// Differentiable [`Real::exp`]
@@ -101,7 +122,7 @@ where
     /// Differentiable reciprocal of [`Dual`]
     #[must_use]
     fn recip(&self) -> Self {
-        todo!()
+        self.powf(-Self::Value::one())
     }
 
     /// Differentiable [`Real::abs`]
@@ -114,5 +135,61 @@ where
     #[must_use]
     fn signum(&self) -> Self {
         self.chain(|x| (x.signum(), Self::Value::zero()))
+    }
+
+    /// To further implement [`std::ops::Add`] for structs
+    #[must_use]
+    fn add_impl(&self, rhs: &Self) -> Self {
+        self.to_owned().add_assign_impl(rhs).to_owned()
+    }
+
+    /// To further implement [`std::ops::Mul`] for structs
+    #[must_use]
+    fn mul_impl(&self, rhs: &Self) -> Self {
+        self.to_owned().mul_assign_impl(rhs).to_owned()
+    }
+
+    /// To further implement [`std::ops::Sub`] for structs
+    #[must_use]
+    fn sub_impl(&self, rhs: &Self) -> Self {
+        self.to_owned().sub_assign_impl(rhs).to_owned()
+    }
+
+    /// To further implement [`std::ops::Div`] for structs
+    #[must_use]
+    fn div_impl(&self, rhs: &Self) -> Self {
+        self.to_owned().div_assign_impl(rhs).to_owned()
+    }
+
+    /// To further implement [`std::ops::AddAssign`] for structs
+    fn add_assign_impl(&mut self, rhs: &Self) -> &mut Self {
+        *self.value_mut() += rhs.value();
+        *self.dual_mut() += rhs.dual_borrow().to_owned();
+        self
+    }
+
+    /// To further implement [`std::ops::MulAssign`] for structs
+    fn mul_assign_impl(&mut self, rhs: &Self) -> &mut Self {
+        let value_local = self.value(); // preserving original value
+        *self.value_mut() *= rhs.value(); // and then it mutates
+        *self.dual_mut() *= rhs.value();
+        *self.dual_mut() += rhs.dual_borrow().to_owned() * value_local;
+        self
+    }
+
+    /// To further implement [`std::ops::SubAssign`] for structs
+    fn sub_assign_impl(&mut self, rhs: &Self) -> &mut Self {
+        self.add_assign_impl(&rhs.neg_impl())
+    }
+
+    /// To further implement [`std::ops::DivAssign`] for structs
+    fn div_assign_impl(&mut self, rhs: &Self) -> &mut Self {
+        self.mul_assign_impl(&rhs.recip())
+    }
+
+    /// To further implement [`std::ops::Neg`] for structs
+    #[must_use]
+    fn neg_impl(&self) -> Self {
+        Self::new(-self.value(), self.dual_borrow().to_owned().neg())
     }
 }
