@@ -6,7 +6,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-// TODO: rebase specializations on this generic struct
+// TODO: rebase specializations on this generic struct instead of [`Common`]
 /// Default generic [`Dual`] implementor: a struct with two fields
 #[derive(Clone, Debug, PartialEq, PartialOrd, Default, Hash)]
 pub struct DualNumber<N, D>

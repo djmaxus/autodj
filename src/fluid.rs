@@ -7,6 +7,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssi
 pub trait Value: Real + AddAssign + MulAssign + SubAssign {}
 impl<R> Value for R where R: Real + AddAssign + MulAssign + SubAssign {}
 
+// TODO: implement/require Iterator?
 /// Derivatives
 pub trait Grad<V: Value>
 where
@@ -37,6 +38,7 @@ impl<V: Value, G> Grad<V> for G where
 // TODO: std::ops::Index(Mut) ?
 // TODO: reduce cloning
 // TODO: find ways to reduce boilerplate
+// TODO: implement/require Iterator?
 // NOTE: foreign traits (e.g. `std::ops::*`) can be implemented for solid structs only.
 // That's why we have separate implementations down below + trait bounds right below
 /// Common behavior of dual numbers
