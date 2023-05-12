@@ -19,15 +19,11 @@ pub struct Common<D: DualComponent> {
 impl<D: DualComponent> Dual for Common<D> {
     type Value = f64;
 
-    fn value(&self) -> Self::Value {
-        self.real
+    fn value(&self) -> &Self::Value {
+        self.real.borrow()
     }
 
     type Grad = D;
-
-    fn dual(&self) -> Self::Grad {
-        self.dual.to_owned()
-    }
 
     fn new(value: Self::Value, dual: Self::Grad) -> Self {
         Self { real: value, dual }
@@ -41,8 +37,12 @@ impl<D: DualComponent> Dual for Common<D> {
         &mut self.real
     }
 
-    fn dual_borrow(&self) -> &Self::Grad {
+    fn dual(&self) -> &Self::Grad {
         self.dual.borrow()
+    }
+
+    fn decompose(self) -> (Self::Value, Self::Grad) {
+        (self.real, self.dual)
     }
 }
 
