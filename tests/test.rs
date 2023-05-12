@@ -105,7 +105,7 @@ mod vector {
         let result: DualNumber = x.into_variables().get().iter().sum();
         println!("f({x:?}) = {result:?}",);
 
-        assert_eq!(result.value(), reference);
+        assert_eq!(result.value(), &reference);
     }
 
     #[test]
@@ -118,7 +118,7 @@ mod vector {
         let result: DualNumber = x.into_variables().get().iter().product();
         println!("f({x:?}) = {result:?}",);
 
-        assert_eq!(result.value(), reference);
+        assert_eq!(result.value(), &reference);
     }
 
     #[test]
@@ -129,14 +129,14 @@ mod vector {
             .iter()
             .map(|x| x - &1.0.into())
             .product();
-        assert_eq!(zero.value(), 0.0);
+        assert_eq!(zero.value(), &0.0);
     }
 
     #[test]
     fn shifted_partial() {
         fn shifted_product(x: &[DualNumber], threshold: f64) -> DualNumber {
             x.iter()
-                .filter(|x| x.value() < threshold)
+                .filter(|x| x.value() < &threshold)
                 .map(|x| x - &1.0.into())
                 .product()
         }
@@ -146,7 +146,7 @@ mod vector {
         let variables = values.into_variables();
         let f = shifted_product(variables.get(), 6.);
         println!("f({:?}) = {:?}", values, f);
-        assert_eq!(f.value(), 8.);
+        assert_eq!(f.value(), &8.);
         assert_eq!(f.grad().len(), variables.get().len() - 1);
     }
 
@@ -161,6 +161,6 @@ mod vector {
         let f = x / y;
 
         assert_eq!(f.grad(), &[1. / 2., -1. / 4.]);
-        assert_eq!(f.value(), 0.5);
+        assert_eq!(f.value(), &0.5);
     }
 }

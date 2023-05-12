@@ -10,11 +10,25 @@ impl<R> Value for R where R: Real + AddAssign + MulAssign + SubAssign {}
 /// Derivatives
 pub trait Grad<V: Value>
 where
-    Self: Clone + AddAssign + SubAssign + Neg<Output = Self> + MulAssign<V> + Mul<V, Output = Self>,
+    Self: Clone
+        + AddAssign
+        + SubAssign
+        + Neg<Output = Self>
+        + MulAssign<V>
+        + Mul<V, Output = Self>
+        + PartialEq
+        + PartialOrd,
 {
 }
 impl<V: Value, G> Grad<V> for G where
-    G: Clone + AddAssign + SubAssign + Neg<Output = Self> + MulAssign<V> + Mul<V, Output = Self>
+    G: Clone
+        + AddAssign
+        + SubAssign
+        + Neg<Output = Self>
+        + MulAssign<V>
+        + Mul<V, Output = Self>
+        + PartialEq
+        + PartialOrd
 {
 }
 
@@ -30,6 +44,8 @@ pub trait Dual
 where
     Self: Sized
         + Clone
+        + PartialEq
+        + PartialOrd
         + Add<Output = Self>
         + Mul<Output = Self>
         + Sub<Output = Self>
@@ -44,7 +60,7 @@ where
     type Value: Value;
 
     /// Copy [`Dual::Value`]
-    fn value(&self) -> Self::Value;
+    fn value(&self) -> &Self::Value;
 
     /// Mutate [`Dual::Value`]
     fn value_mut(&mut self) -> &mut Self::Value;
@@ -52,12 +68,11 @@ where
     /// Associated [`Grad`] implementor
     type Grad: Grad<Self::Value>;
 
-    // TODO: consider also taking dual consuming `self`
-    /// Clone [`Dual::Grad`]
-    fn dual(&self) -> Self::Grad;
+    /// Consume [`Dual`] implementor and return its components as a tuple
+    fn decompose(self) -> (Self::Value, Self::Grad);
 
     /// Borrow [`Dual::Grad`]
-    fn dual_borrow(&self) -> &Self::Grad;
+    fn dual(&self) -> &Self::Grad;
 
     /// Mutably borrow [`Dual::Grad`]
     fn dual_mut(&mut self) -> &mut Self::Grad;
@@ -72,9 +87,9 @@ where
     where
         F: Fn(Self::Value) -> (Self::Value, Self::Value),
     {
-        let (f, df) = func(self.value());
+        let (f, df) = func(*self.value());
         let dual_new = {
-            let mut dual = self.dual();
+            let mut dual = self.dual().to_owned();
             dual *= df;
             dual
         };
@@ -163,17 +178,17 @@ where
 
     /// To further implement [`std::ops::AddAssign`] for structs
     fn add_assign_impl(&mut self, rhs: &Self) -> &mut Self {
-        *self.value_mut() += rhs.value();
-        *self.dual_mut() += rhs.dual_borrow().to_owned();
+        *self.value_mut() += rhs.value().to_owned();
+        *self.dual_mut() += rhs.dual().to_owned();
         self
     }
 
     /// To further implement [`std::ops::MulAssign`] for structs
     fn mul_assign_impl(&mut self, rhs: &Self) -> &mut Self {
-        let value_local = self.value(); // preserving original value
-        *self.value_mut() *= rhs.value(); // and then it mutates
-        *self.dual_mut() *= rhs.value();
-        *self.dual_mut() += rhs.dual_borrow().to_owned() * value_local;
+        let value_local = self.value().to_owned(); // preserve original value
+        *self.value_mut() *= rhs.value().to_owned();
+        *self.dual_mut() *= rhs.value().to_owned();
+        *self.dual_mut() += rhs.dual().to_owned() * value_local;
         self
     }
 
@@ -190,6 +205,6 @@ where
     /// To further implement [`std::ops::Neg`] for structs
     #[must_use]
     fn neg_impl(&self) -> Self {
-        Self::new(-self.value(), self.dual_borrow().to_owned().neg())
+        Self::new(self.value().to_owned().neg(), self.dual().to_owned().neg())
     }
 }

@@ -7,7 +7,6 @@ use std::{
 };
 
 // TODO: rebase specializations on this generic struct
-// TODO: name specifications something like "Song"(single), "Album"(static arr), "Playlist"(vector),"Mixtape"(sparse) | optional re-export feature
 /// Default generic [`Dual`] implementor: a struct with two fields
 #[derive(Clone, Debug, PartialEq, PartialOrd, Default, Hash)]
 pub struct DualNumber<N, D>
@@ -125,21 +124,17 @@ where
 {
     type Value = N;
 
-    fn value(&self) -> Self::Value {
-        self.real
+    fn value(&self) -> &Self::Value {
+        self.real.borrow()
     }
 
     fn value_mut(&mut self) -> &mut Self::Value {
-        &mut self.real
+        self.real.borrow_mut()
     }
 
     type Grad = D;
 
-    fn dual(&self) -> Self::Grad {
-        self.dual.to_owned()
-    }
-
-    fn dual_borrow(&self) -> &Self::Grad {
+    fn dual(&self) -> &Self::Grad {
         self.dual.borrow()
     }
 
@@ -149,5 +144,9 @@ where
 
     fn new(real: Self::Value, dual: Self::Grad) -> Self {
         Self { real, dual }
+    }
+
+    fn decompose(self) -> (Self::Value, Self::Grad) {
+        (self.real, self.dual)
     }
 }

@@ -31,8 +31,8 @@ let x : DualNumber = 2.0.into_variable();
 // values can be borrowed for arithmetic operations
 let f = x * x + &1.0.into();
 
-assert_eq!(f.value(), 5.0);
-assert_eq!(f.deriv(), 4.0);
+assert_eq!(f.value(), &5.0);
+assert_eq!(f.deriv(),  4.0);
 
 // fmt::Display resembles Taylor expansion
 assert_eq!(format!("{f}"), "5+4∆");
@@ -59,7 +59,7 @@ let [x, y] = vars.get().to_owned();
 
 let f = x * (y - 1.0.into());
 
-assert_eq!(f.value(), 4.);
+assert_eq!(f.value(), & 4.);
 assert_eq!(f.grad() , &[2., 2.]);
 assert_eq!(format!("{f}"), "4+[2.0, 2.0]∆");
   ```
@@ -76,7 +76,7 @@ let f : DualNumber = x.get()
                       .map(|x : &DualNumber| x * &2.0.into())
                       .sum();
 
-assert_eq!(f.value(), 30.);
+assert_eq!(f.value(), &30.);
 
 f.grad()
  .iter()

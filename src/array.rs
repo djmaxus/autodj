@@ -14,7 +14,7 @@ pub use crate::fluid::Dual;
 /// let x0 : DualNumber<2> = 1.0.into(); // Parameter
 /// let &[x, y] = [2.,3.].into_variables().get();
 /// let f = (x - x0) * y;
-/// assert_eq!(f.value(), 3.);
+/// assert_eq!(f.value(), &3.);
 /// assert_eq!(f.grad().len(), 2);
 /// ```
 pub type DualNumber<const N: usize> = Common<Array<N>>;
@@ -23,7 +23,7 @@ impl<const N: usize> DualNumber<N> {
     /// Refer to the contained gradient
     #[must_use]
     pub fn grad(&self) -> &[f64; N] {
-        &self.dual_borrow().0
+        &self.dual().0
     }
 
     /**
@@ -33,7 +33,7 @@ impl<const N: usize> DualNumber<N> {
     let [x, y] = [2.,2.].into_variables().get().to_owned();
     let f = (x - 1.0.into()) * y;
     let differential = f.differential();
-    assert_eq!(differential.value(), 2.);
+    assert_eq!(differential.value(), &2.);
     assert_eq!(differential.deriv(), 3.);
     ```
     */

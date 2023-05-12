@@ -2,6 +2,7 @@
 
 pub use crate::fluid::Dual;
 use std::{
+    borrow::Borrow,
     iter::{Product, Sum},
     ops::{Add, AddAssign, Div, Mul, MulAssign, Neg, Sub, SubAssign},
 };
@@ -17,7 +18,7 @@ impl DualNumber {
     /// Refer to the gradient (dual component)
     #[must_use]
     pub fn grad(&self) -> &Vec<f64> {
-        &self.dual_borrow().0
+        self.dual().0.borrow()
     }
 }
 
