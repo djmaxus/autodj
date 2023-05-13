@@ -1,12 +1,13 @@
 //! Generic data structure which implements [`Dual`]
 
-use crate::fluid::{Dual, Grad, Value};
 use std::{
     borrow::{Borrow, BorrowMut},
+    fmt::{Display, LowerExp},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-// TODO: rebase specializations on this generic struct instead of [`Common`]
+use crate::fluid::{display_impl, lower_exp_impl, Dual, Grad, Value};
+
 /// Default generic [`Dual`] implementor: a struct with two fields
 #[derive(Clone, Debug, PartialEq, PartialOrd, Default, Hash)]
 pub struct DualNumber<N, D>
@@ -14,9 +15,9 @@ where
     N: Value,
     D: Grad<N>,
 {
-    /// real value
-    real: N,
-    /// derivatives
+    /// actual value
+    value: N,
+    /// derivatives (dual components)
     dual: D,
 }
 
@@ -125,11 +126,11 @@ where
     type Value = N;
 
     fn value(&self) -> &Self::Value {
-        self.real.borrow()
+        self.value.borrow()
     }
 
     fn value_mut(&mut self) -> &mut Self::Value {
-        self.real.borrow_mut()
+        self.value.borrow_mut()
     }
 
     type Grad = D;
@@ -143,10 +144,39 @@ where
     }
 
     fn new(real: Self::Value, dual: Self::Grad) -> Self {
-        Self { real, dual }
+        Self { value: real, dual }
     }
 
     fn decompose(self) -> (Self::Value, Self::Grad) {
-        (self.real, self.dual)
+        (self.value, self.dual)
     }
 }
+
+impl<V: Value, G: Grad<V>> From<V> for DualNumber<V, G> {
+    fn from(value: V) -> Self {
+        Self::parameter(value)
+    }
+}
+
+impl<V: Value + Display, G: Grad<V> + Display> Display for DualNumber<V, G> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        display_impl(self, f)
+    }
+}
+
+impl<V: Value + LowerExp, G: Grad<V> + LowerExp> LowerExp for DualNumber<V, G> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        lower_exp_impl(self, f)
+    }
+}
+
+impl<N, D> Copy for DualNumber<N, D>
+where
+    N: Value + Copy,
+    D: Grad<N> + Copy,
+{
+}
+
+pub mod array;
+pub mod single;
+pub mod vector;

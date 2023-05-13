@@ -44,21 +44,12 @@
 //! - [Wikipedia](https://en.wikipedia.org/wiki/Dual_number)
 //! - [Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation)
 
-pub mod array;
-pub mod single;
-pub mod vector;
-
-pub mod common;
 pub mod fluid;
 pub mod solid;
+pub use solid::{array, single, vector};
 
 #[cfg(test)]
-mod tests {
-    #[test]
-    fn default_f64() {
-        assert!((f64::default() - 0.0_f64).abs() < f64::EPSILON);
-    }
-}
+mod tests {}
 
 #[doc = include_str!("../README.md")]
 #[cfg(doctest)]

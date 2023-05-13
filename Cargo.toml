@@ -19,8 +19,7 @@ default = []
 
 [dependencies]
 num-traits = ">=0"
-num =">=0"
-auto_ops = ">=0"
+# auto_ops = ">=0"
 
 [dev-dependencies]
 autodiff = ">=0"

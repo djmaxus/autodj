@@ -1,14 +1,9 @@
 //! Integration tests for [`autodj`]
 
 mod ideal_gas {
-    use autodj::common::*;
+    use autodj::fluid::Dual;
 
-    fn calc_gas_state<D: DualComponent>(
-        [pressure, volume, temperature, moles]: [Common<D>; 4],
-    ) -> Common<D>
-    where
-        D: DualComponent,
-    {
+    fn calc_gas_state<D: Dual + From<f64>>([pressure, volume, temperature, moles]: [D; 4]) -> D {
         const UGC: f64 = 8.314;
         pressure * volume - temperature * moles * UGC.into()
     }
@@ -32,8 +27,9 @@ mod ideal_gas {
 
         let initial = moles_initial.into_variable().eval(scalar_func);
 
+        let (f, df) = initial.decompose();
         // newton iteration
-        let moles = moles_initial - initial.value() / initial.deriv();
+        let moles = moles_initial - f / df;
 
         let state = moles.into_variable().eval(scalar_func);
 
@@ -55,22 +51,20 @@ Update-------: r({moles}) = {:e}"#,
 
         use autodj::array::*;
 
-        let vector_func = |&[moles, volume]: &[DualNumber<2>; 2]| {
+        let vector_func = |&[moles, volume]: &[DualNumber<f64, 2>; 2]| {
             calc_gas_state([pressure, volume, temperature, moles])
         };
 
-        let initial = [moles_initial, volume_initial]
-            .into_variables()
-            .eval(vector_func);
+        let initial = vector_func(&[moles_initial, volume_initial].into_variables());
 
         // Newton-like iteration
         const W: f64 = 1.5;
         const WEIGHTS: [f64; 2] = [W, 1. - W];
 
-        let moles = moles_initial - WEIGHTS[0] * initial.value() / initial.grad()[0];
-        let volume = volume_initial - WEIGHTS[1] * initial.value() / initial.grad()[1];
+        let moles = moles_initial - WEIGHTS[0] * initial.value() / initial.dual().as_ref()[0];
+        let volume = volume_initial - WEIGHTS[1] * initial.value() / initial.dual().as_ref()[1];
 
-        let update = [moles, volume].into_variables().eval(vector_func);
+        let update = vector_func(&[moles, volume].into_variables());
 
         println!(
             r#"
@@ -82,16 +76,21 @@ Update-------: r({moles}, {volume}) = {:e}"#,
 }
 
 mod vector {
+
     use autodj::{fluid::Dual, vector::*};
+    use std::ops::{Add, Mul};
 
     #[test]
     fn vector_multiple() {
-        fn sqps(x: &[DualNumber]) -> DualNumber {
-            let add: DualNumber = 1.0.into();
-            x.iter().map(|x| x.powf(2.0) + &add).sum()
+        fn sqps(x: &[DualF64]) -> DualF64 {
+            let add: DualF64 = 1.0.into();
+            x.iter()
+                .map(|x| x.powf(2.0).add_impl(&add))
+                .reduce(Add::add)
+                .unwrap()
         }
         let x = vec![1., 2., 3.];
-        let result = x.into_variables().eval(|x| sqps(x.as_slice()));
+        let result = sqps(x.clone().into_variables().as_slice());
         println!("f{x:?} ≈ {result:?}");
     }
 
@@ -102,7 +101,12 @@ mod vector {
         let reference: f64 = x.iter().sum();
         println!("f({x:?}) = ∑ x_i = {}", reference);
 
-        let result: DualNumber = x.into_variables().get().iter().sum();
+        let result: DualF64 = x
+            .clone()
+            .into_variables()
+            .into_iter()
+            .reduce(Add::add)
+            .unwrap();
         println!("f({x:?}) = {result:?}",);
 
         assert_eq!(result.value(), &reference);
@@ -115,7 +119,12 @@ mod vector {
         let reference: f64 = x.iter().product();
         println!("f({x:?}) = ∏ x_i = {}", reference);
 
-        let result: DualNumber = x.into_variables().get().iter().product();
+        let result: DualF64 = x
+            .clone()
+            .into_variables()
+            .into_iter()
+            .reduce(Mul::mul)
+            .unwrap();
         println!("f({x:?}) = {result:?}",);
 
         assert_eq!(result.value(), &reference);
@@ -123,44 +132,41 @@ mod vector {
 
     #[test]
     fn product_owned() {
-        let zero: DualNumber = [1.0, 2.0, 3.0]
+        let zero: DualF64 = [1.0, 2.0, 3.0]
             .into_variables()
-            .get()
             .iter()
-            .map(|x| x - &1.0.into())
-            .product();
+            .map(|x| x.sub_impl(&1.0.into()))
+            .reduce(Mul::mul)
+            .unwrap();
         assert_eq!(zero.value(), &0.0);
     }
 
     #[test]
     fn shifted_partial() {
-        fn shifted_product(x: &[DualNumber], threshold: f64) -> DualNumber {
+        fn shifted_product(x: &[DualF64], threshold: f64) -> DualF64 {
             x.iter()
                 .filter(|x| x.value() < &threshold)
-                .map(|x| x - &1.0.into())
-                .product()
+                .map(|x| x.sub_impl(&1.0.into()))
+                .reduce(Mul::mul)
+                .unwrap()
         }
 
-        let values: Vec<f64> = vec![2, 3, 5, 8].iter().map(|&x| x as f64).collect();
-
-        let variables = values.into_variables();
-        let f = shifted_product(variables.get(), 6.);
+        let values: Vec<f64> = vec![2., 3., 5., 8.];
+        let variables = values.clone().into_variables();
+        let f = shifted_product(variables.as_slice(), 6.);
         println!("f({:?}) = {:?}", values, f);
         assert_eq!(f.value(), &8.);
-        assert_eq!(f.grad().len(), variables.get().len() - 1);
+        assert_eq!(f.dual().as_ref().len(), variables.len() - 1);
     }
 
     #[test]
     fn div() {
         let variables = [1., 2.].into_variables();
-        let slice = variables.get().get(0..2).unwrap();
+        let x = &variables[0];
+        let y = &variables[1];
 
-        let x = slice.first().unwrap();
-        let y = slice.last().unwrap();
-
-        let f = x / y;
-
-        assert_eq!(f.grad(), &[1. / 2., -1. / 4.]);
-        assert_eq!(f.value(), &0.5);
+        let (f, df) = (x.div_impl(y)).decompose();
+        assert_eq!(df.as_ref(), &[0.5, -0.25]);
+        assert_eq!(f, 0.5);
     }
 }
