@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-use autodj::{array::*, fluid::Dual};
+use autodj::{solid::array::*, fluid::Dual};
 use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
 use std::{
     error::Error,
@@ -27,7 +27,7 @@ use std::{
     fmt::Debug,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
-type Dual2 = DualNumber<2>;
+type Dual2 = DualNumber<f64,2>;
 type V2<T> = SVector<T, 2>;
 type M2<T> = SMatrix<T, 2, 2>;
 
@@ -35,6 +35,7 @@ fn u_dot<T>(v: T) -> T {
     v
 }
 
+// FIXME: just implement Dual for fluid::Value
 trait RealOps:
     Sub<Output = Self>
     + MulAssign
@@ -152,8 +153,8 @@ where
     let mut error = Option::None;
 
     for _ in 0..num_iterations {
-        let vars: DualVariables<2> = x.into_variables();
-        let x_current = vars.get().into_s_vector::<Dual2>();
+        let vars = x.into_variables();
+        let x_current = vars.into_s_vector::<Dual2>();
 
         let residual_dual = calc_residual(x_current);
 
@@ -172,7 +173,7 @@ where
         let jacobian = M2::<f64>::from_row_iterator(
             residual_dual
                 .iter()
-                .flat_map(|equation| equation.grad().to_owned()),
+                .flat_map(|equation| equation.dual().as_ref().to_owned()),
         );
 
         let increment = jacobian.qr().solve(&residual).unwrap();

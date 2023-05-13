@@ -1,47 +1,49 @@
 //! [`Dual`] trait as behavior definition
 
 use num_traits::{real::Real, One, Zero};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use std::{
+    fmt::{Debug, Display, Formatter, LowerExp, Result},
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
+};
 
 /// An ordinary Value
-pub trait Value: Real + AddAssign + MulAssign + SubAssign {}
-impl<R> Value for R where R: Real + AddAssign + MulAssign + SubAssign {}
+pub trait Value: Real + AddAssign + MulAssign + SubAssign + Debug {}
+impl<R> Value for R where R: Real + AddAssign + MulAssign + SubAssign + Debug {}
 
-// TODO: implement/require Iterator?
 /// Derivatives
 pub trait Grad<V: Value>
 where
     Self: Clone
         + AddAssign
-        + SubAssign
         + Neg<Output = Self>
         + MulAssign<V>
         + Mul<V, Output = Self>
+        // TODO: consider replacing Mul bound with mul_impl method based on mul_assign
         + PartialEq
-        + PartialOrd,
+        + PartialOrd
+        + Zero,
 {
 }
 impl<V: Value, G> Grad<V> for G where
     G: Clone
         + AddAssign
-        + SubAssign
-        + Neg<Output = Self>
         + MulAssign<V>
         + Mul<V, Output = Self>
+        + Neg<Output = Self>
         + PartialEq
         + PartialOrd
+        + Zero
 {
 }
 
-// TODO: implement parameters and independent variables there
-// TODO: consistent naming convention for real and dual components (for both fluid & solid)
-// TODO: std::ops::Index(Mut) ?
-// TODO: reduce cloning
+// TODO: implement construction of independent variables here
+// TODO: std::ops::Index(Mut) ? implement/require Iterator?
 // TODO: find ways to reduce boilerplate
-// TODO: implement/require Iterator?
-// NOTE: foreign traits (e.g. `std::ops::*`) can be implemented for solid structs only.
-// That's why we have separate implementations down below + trait bounds right below
+// TODO: implement `eval` methods to sequentially evaluate functions on dual number(s)
 /// Common behavior of dual numbers
+///
+/// NOTE: foreign traits (such as `std::ops::*`) can be implemented for solid structs only.
+/// That's why we have separate implementations down below + trait bounds right below
 pub trait Dual
 where
     Self: Sized
@@ -82,6 +84,12 @@ where
     /// Construct a new [`Dual`] from its parts
     fn new(value: Self::Value, grad: Self::Grad) -> Self;
 
+    /// Construct a parameter (constant value)
+    fn parameter(value: Self::Value) -> Self {
+        Self::new(value, Self::Grad::zero())
+    }
+
+    // TODO: use instead of Dual::eval
     /// Chain rule implementation
     /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
     #[must_use]
@@ -89,7 +97,7 @@ where
     where
         F: Fn(Self::Value) -> (Self::Value, Self::Value),
     {
-        let (f, df) = func(*self.value());
+        let (f, df) = func(self.value().to_owned());
         let dual_new = {
             let mut dual = self.dual().to_owned();
             dual *= df;
@@ -209,4 +217,33 @@ where
     fn neg_impl(&self) -> Self {
         Self::new(self.value().to_owned().neg(), self.dual().to_owned().neg())
     }
+
+    // FIXME: replace with properly-defined `chain` method
+    /// Evaluate function over a single dual number
+    fn eval<Output, Func>(self, func: Func) -> Output
+    where
+        Func: Fn(Self) -> Output,
+    {
+        func(self)
+    }
+}
+
+/// Fluid implementation of [`Display`] to use with solid structs
+pub(crate) fn display_impl<V, G, D>(dual_number: &D, f: &mut Formatter<'_>) -> Result
+where
+    V: Value + Display,
+    G: Grad<V> + Display,
+    D: Dual<Value = V, Grad = G>,
+{
+    write!(f, "{}{:+}∆", dual_number.value(), dual_number.dual())
+}
+
+/// Fluid implementation of [`LowerExp`] to use with solid structs
+pub(crate) fn lower_exp_impl<V, G, D>(dual_number: &D, f: &mut Formatter<'_>) -> Result
+where
+    V: Value + LowerExp,
+    G: Grad<V> + LowerExp,
+    D: Dual<Value = V, Grad = G>,
+{
+    write!(f, "{:e}{:e}∆", dual_number.value(), dual_number.dual())
 }

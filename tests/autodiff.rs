@@ -1,7 +1,10 @@
 //! Implementation of the examples from [`autodiff`] using [`autodj`]
 //!
 
+use std::borrow::Borrow;
+
 use autodiff::{F, F1};
+use autodj::fluid::Dual;
 
 #[test]
 fn quadratic() {
@@ -15,14 +18,14 @@ fn quadratic() {
 
     use autodj::single::*;
     let autodj = {
-        fn calculate_quadratic(x: DualNumber) -> DualNumber {
-            let shift: DualNumber = 1.0.into();
+        fn calculate_quadratic(x: DualF64) -> DualF64 {
+            let shift: DualF64 = 1.0.into();
             (x - shift).powf(2.0)
         }
         x.into_variable().eval(calculate_quadratic)
     };
 
-    assert_eq!(autodj.deriv(), autodiff);
+    assert_eq!(autodj.dual(), autodiff.borrow());
     println!(
         r#"
 ----------f(x) = (x - 1)^2
@@ -48,14 +51,14 @@ fn multi_quadratic() {
 
     use autodj::array::*;
     let autodj = {
-        fn calculate_multi_quadratic(&[x, y]: &[DualNumber<2>; 2]) -> DualNumber<2> {
+        fn calculate_multi_quadratic([x, y]: [DualNumber<f64, 2>; 2]) -> DualNumber<f64, 2> {
             let shift = 1.0.into();
             (x - shift) * (y * 2.0.into() - shift)
         }
-        [x, y].into_variables().eval(calculate_multi_quadratic)
+        calculate_multi_quadratic([x, y].into_variables())
     };
 
-    assert_eq!(autodj.grad(), &autodiff);
+    assert_eq!(autodj.dual().as_ref(), &autodiff);
 
     println!(
         r#"

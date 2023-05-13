@@ -120,18 +120,19 @@ to promote most wanted features or to report a bug.
     - [x] static
     - [x] dynamic
     - [ ] sparse
-  - [ ] Jacobians for efficient layouts in memory
+  - [ ] Jacobians (efficient layouts in memory to make matrices right away)
 - [ ] Named variables (UUID-based)
 - [ ] Calculation tracking (partial derivatives of intermediate values)
 - Third-party crates support (as features)
-  - [ ] `num`
-  - [ ] linear algebra crates (`nalgebra` etc.)
+  - [x] `num-traits`
+  - [x] linear algebra crates (`nalgebra` etc.)
 - Advanced features
-  - [ ] Arbitrary number types beside `f64`
+  - [x] Arbitrary number types beside `f64`
   - [ ] Inter-operability of different dual types (e.g., single and multiple dynamic)
   - [ ] Numerical verification (or replacement) of derivatives (by definition)
   - [ ] Macro for automatic extensions of regular (i.e. non-dual) functions
   - [ ] Optional calculation of derivatives
+    - [ ] Backward differentiation probably
     - [ ] Iterator implementation as possible approach to lazy evaluation
 
 ## Comparison with [`autodiff`](https://crates.io/crates/autodiff)
