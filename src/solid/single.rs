@@ -1,16 +1,16 @@
 //! [`crate::solid::DualNumber`] for single variable differentiations
 
-use crate::fluid::{Dual, Value};
+pub use crate::solid::*;
 
 /// Uni-variate dual number
 ///
 ///```
-/// use crate::solid::single::*;
+/// use autodj::single::*;
 /// let x0 : DualF64 = 1.0.into();
 /// let x  : DualF64 = 3.0.into_variable();
 /// let f = (x - x0).powf(2.0);
 /// assert_eq!(f.value(), &4.);
-/// assert_eq!(f.deriv(), 4.);
+/// assert_eq!(f.dual(),  &4.);
 /// ```
 pub type DualNumber<V> = super::DualNumber<V, V>;
 

@@ -1,10 +1,7 @@
 //! Implementation of the examples from [`autodiff`] using [`autodj`]
-//!
-
-use std::borrow::Borrow;
 
 use autodiff::{F, F1};
-use autodj::fluid::Dual;
+use std::borrow::Borrow;
 
 #[test]
 fn quadratic() {
