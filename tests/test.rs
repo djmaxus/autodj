@@ -79,7 +79,6 @@ mod vector {
 
     use autodj::{fluid::Dual, vector::*};
     use std::ops::{Add, Mul};
-
     #[test]
     fn vector_multiple() {
         fn sqps(x: &[DualF64]) -> DualF64 {
@@ -87,11 +86,12 @@ mod vector {
             x.iter()
                 .map(|x| x.powf(2.0).add_impl(&add))
                 .reduce(Add::add)
-                .unwrap()
+                .expect("nonzero slice length")
         }
         let x = vec![1., 2., 3.];
         let result = sqps(x.clone().into_variables().as_slice());
         println!("f{x:?} ≈ {result:?}");
+        // FIXME: add assertions
     }
 
     #[test]
@@ -106,7 +106,7 @@ mod vector {
             .into_variables()
             .into_iter()
             .reduce(Add::add)
-            .unwrap();
+            .expect("nonzero slice length");
         println!("f({x:?}) = {result:?}",);
 
         assert_eq!(result.value(), &reference);
@@ -119,44 +119,42 @@ mod vector {
         let reference: f64 = x.iter().product();
         println!("f({x:?}) = ∏ x_i = {}", reference);
 
-        let result: DualF64 = x
-            .clone()
-            .into_variables()
-            .into_iter()
-            .reduce(Mul::mul)
-            .unwrap();
+        let result = x.clone().into_variables().into_iter().reduce(Mul::mul);
         println!("f({x:?}) = {result:?}",);
 
-        assert_eq!(result.value(), &reference);
+        assert_eq!(
+            result.map(|result| result.value().to_owned()),
+            Some(reference)
+        );
     }
 
     #[test]
     fn product_owned() {
-        let zero: DualF64 = [1.0, 2.0, 3.0]
+        let zero = [1.0, 2.0, 3.0]
             .into_variables()
             .iter()
             .map(|x| x.sub_impl(&1.0.into()))
-            .reduce(Mul::mul)
-            .unwrap();
-        assert_eq!(zero.value(), &0.0);
+            .reduce(Mul::mul);
+
+        assert_eq!(zero.map(|result| result.value().to_owned()), Some(0.0));
     }
 
     #[test]
     fn shifted_partial() {
-        fn shifted_product(x: &[DualF64], threshold: f64) -> DualF64 {
+        fn shifted_product(x: &[DualF64], threshold: f64) -> Option<DualF64> {
             x.iter()
                 .filter(|x| x.value() < &threshold)
                 .map(|x| x.sub_impl(&1.0.into()))
                 .reduce(Mul::mul)
-                .unwrap()
         }
 
         let values: Vec<f64> = vec![2., 3., 5., 8.];
         let variables = values.clone().into_variables();
-        let f = shifted_product(variables.as_slice(), 6.);
+        let f = shifted_product(variables.as_slice(), 6.).expect("At least two variables");
         println!("f({:?}) = {:?}", values, f);
         assert_eq!(f.value(), &8.);
-        assert_eq!(f.dual().as_ref().len(), variables.len() - 1);
+        assert_eq!(f.dual().as_ref().len(), variables.len());
+        assert_eq!(f.dual().as_ref().last(), Some(&0.));
     }
 
     #[test]

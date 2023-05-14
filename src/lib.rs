@@ -33,16 +33,10 @@
     clippy::lossy_float_literal,
     clippy::missing_docs_in_private_items,
     clippy::redundant_pub_crate,
-    clippy::cargo
+    clippy::cargo,
+    clippy::disallowed_methods
 )]
-//! # Automatic Differentiation Library
-//!
-//! by [djmaxus](https://djmaxus.github.io/)
-//!
-//! ## References
-//!
-//! - [Wikipedia](https://en.wikipedia.org/wiki/Dual_number)
-//! - [Automatic Differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation)
+#![doc = include_str!("../README.md")]
 
 pub mod fluid;
 pub mod solid;
@@ -50,7 +44,3 @@ pub use solid::{array, single, vector};
 
 #[cfg(test)]
 mod tests {}
-
-#[doc = include_str!("../README.md")]
-#[cfg(doctest)]
-pub struct ReadmeDoctests;

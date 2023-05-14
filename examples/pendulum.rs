@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-use autodj::{solid::array::*, fluid::Dual};
+use autodj::{fluid::Dual, solid::array::*};
 use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
 use std::{
     error::Error,
@@ -27,7 +27,7 @@ use std::{
     fmt::Debug,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
-type Dual2 = DualNumber<f64,2>;
+type Dual2 = DualNumber<f64, 2>;
 type V2<T> = SVector<T, 2>;
 type M2<T> = SMatrix<T, 2, 2>;
 
@@ -143,7 +143,7 @@ fn newton_iterations<F>(
     x_approx: V2<f64>,
     num_iterations: usize,
     tolerance: f64,
-) -> (V2<f64>, Option<f64>)
+) -> Option<(V2<f64>, f64)>
 where
     F: Fn(V2<Dual2>) -> V2<Dual2>,
 {
@@ -166,7 +166,7 @@ where
 
         error = Some(residual.norm());
 
-        if error.unwrap() <= tolerance {
+        if error.map_or(false, |error| error <= tolerance) {
             break;
         }
 
@@ -176,10 +176,11 @@ where
                 .flat_map(|equation| equation.dual().as_ref().to_owned()),
         );
 
-        let increment = jacobian.qr().solve(&residual).unwrap();
-
-        x -= increment;
+        if let Some(increment) = jacobian.qr().solve(&residual) {
+            x -= increment;
+        } else {
+            return None;
+        }
     }
-
-    (x, error)
+    error.map(|error| (x, error))
 }

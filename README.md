@@ -26,13 +26,17 @@ by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/au
 ```rust
 use autodj::single::*;
 
-let x : DualNumber = 2.0.into_variable();
+let x : DualF64 = 2.0.into_variable();
 
-// values can be borrowed for arithmetic operations
-let f = x * x + &1.0.into();
+// Arithmetic operations are required by trait bounds
+let _f = x * x + 1.0.into();
 
-assert_eq!(f.value(), &5.0);
-assert_eq!(f.deriv(),  4.0);
+// Arithmetic rules itself are defined in `Dual` trait
+// on borrowed values for extendability
+let f = (x*x).add_impl(&1.0.into());
+
+// Dual can be decomposed into a value-derivative pair
+assert_eq!(f.decompose(), (5.0, 4.0));
 
 // fmt::Display resembles Taylor expansion
 assert_eq!(format!("{f}"), "5+4∆");
@@ -54,31 +58,35 @@ independent variables can be created consistently using `.into_variables()` meth
 use autodj::array::*;
 
 // consistent set of independent variables
-let vars : DualVariables<2> = [2.0, 3.0].into_variables();
-let [x, y] = vars.get().to_owned();
+let [x, y] : [DualNumber<f64,2>; 2] = [2.0, 3.0].into_variables();
 
 let f = x * (y - 1.0.into());
 
-assert_eq!(f.value(), & 4.);
-assert_eq!(f.grad() , &[2., 2.]);
-assert_eq!(format!("{f}"), "4+[2.0, 2.0]∆");
-  ```
+assert_eq!(f.value()        , & 4.);
+assert_eq!(f.dual().as_ref(), &[2., 2.]);
+assert_eq!(format!("{f}")   , "4+[2.0, 2.0]∆");
+```
 
 #### Dynamic number of variables
 
 ```rust
-use autodj::vector::*;
+use autodj::{
+    fluid::Dual,
+    vector::*
+};
+use std::ops::Add;
 
-let x : DualVariables = vec![1., 2., 3., 4., 5.].into_variables();
+let x = vec![1., 2., 3., 4., 5.].into_variables();
 
-let f : DualNumber = x.get()
-                      .iter()
-                      .map(|x : &DualNumber| x * &2.0.into())
-                      .sum();
+let f : DualF64 = x.iter()
+                   .map(|x : &DualF64| x.mul_impl(&2.0.into()))
+                   .reduce(Add::add)
+                   .unwrap();
 
 assert_eq!(f.value(), &30.);
 
-f.grad()
+f.dual()
+ .as_ref()
  .iter()
  .for_each(|deriv| assert_eq!(deriv, &2.0) );
 ```
@@ -86,8 +94,10 @@ f.grad()
 ### Generic dual numbers
 
 ```rust
-// can be specialized for your needs
-use autodj::common::Common;
+// A trait with all the behavior defined
+use autodj::fluid::Dual;
+// A generic data structure which implements Dual
+use autodj::solid::DualNumber;
 ```
 
 ## Motivation
