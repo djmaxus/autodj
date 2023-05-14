@@ -1,7 +1,7 @@
 //! [`crate::array::DualNumber`] for a specific number of variables
 
+pub use crate::solid::*;
 use num_traits::Zero;
-use crate::fluid::{Dual, Value};
 use std::{
     borrow::Borrow,
     fmt::LowerExp,
@@ -12,8 +12,8 @@ use std::{
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Grad<V: Value, const N: usize>([V; N]);
 
-impl<V: Value, const N: usize> AsRef<[V;N]> for Grad<V, N> {
-    fn as_ref(&self) -> &[V;N] {
+impl<V: Value, const N: usize> AsRef<[V; N]> for Grad<V, N> {
+    fn as_ref(&self) -> &[V; N] {
         self.0.borrow()
     }
 }
@@ -77,7 +77,7 @@ where
 {
     fn zero() -> Self {
         Grad([V::zero(); N])
-                    }
+    }
 
     fn is_zero(&self) -> bool {
         let non_zero_element = self.0.iter().find(|elem| !elem.is_zero());
@@ -88,11 +88,11 @@ where
 /// For statically-known number of variables
 ///```
 /// use autodj::array::*;
-/// let x0 : DualNumber<2> = 1.0.into(); // Parameter
+/// let x0 : DualNumber<f64,2> = 1.0.into(); // Parameter
 /// let [x, y] = [2.,3.].into_variables();
 /// let f = (x - x0) * y;
 /// assert_eq!(f.value(), &3.);
-/// assert_eq!(f.grad().len(), 2);
+/// assert_eq!(f.dual().as_ref().len(), 2);
 /// ```
 pub type DualNumber<V, const N: usize> = crate::solid::DualNumber<V, Grad<V, N>>;
 
@@ -102,16 +102,16 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
     fn into_variables(self) -> [DualNumber<V, N>; N] {
         let arr: [V; N] = self.into();
         let mut holder = [DualNumber::parameter(V::zero()); N];
-        for index in  0..N{
+        for index in 0..N {
             *holder[index].value_mut() = arr[index];
             holder[index].dual_mut().0[index] = V::one();
         }
         holder
     }
 }
-impl<V: Value, const N: usize, IntoArray> IntoVariables<V, N> for IntoArray where Self : Into<[V; N]>{}
+impl<V: Value, const N: usize, IntoArray> IntoVariables<V, N> for IntoArray where Self: Into<[V; N]> {}
 
-impl<V: Value, const N: usize> std::fmt::Display for Grad<V, N> {
+impl<V: Value, const N: usize> Display for Grad<V, N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "+{:?}", self.0)
     }
