@@ -13,7 +13,6 @@
     rustdoc::private_intra_doc_links,
     rustdoc::all,
     rustdoc::missing_crate_level_docs,
-    // rustdoc::missing_doc_code_examples,
     clippy::pedantic,
     clippy::suspicious,
     clippy::perf,
@@ -43,4 +42,4 @@ pub mod solid;
 pub use solid::{array, single, vector};
 
 #[cfg(test)]
-mod tests {}
+mod tests;
