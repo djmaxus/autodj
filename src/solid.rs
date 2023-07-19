@@ -180,4 +180,5 @@ where
 
 pub mod array;
 pub mod single;
+pub mod sparse;
 pub mod vector;
