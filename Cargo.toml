@@ -15,11 +15,17 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [features]
-default = []
+default  = ["uuid"]
+uuid     = ["dep:uuid"]
 
 [dependencies]
 num-traits = ">=0"
 # auto_ops = ">=0"
+
+[dependencies.uuid]
+version = "1.4.1"
+features = ["v4"]
+optional = true
 
 [dev-dependencies]
 autodiff = ">=0"

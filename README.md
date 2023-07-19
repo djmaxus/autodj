@@ -9,11 +9,6 @@
 by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/autodj/issues)
 
 - [Functionality](#functionality)
-  - [Single variables](#single-variables)
-  - [Multiple variables](#multiple-variables)
-    - [Static number of variables](#static-number-of-variables)
-    - [Dynamic number of variables](#dynamic-number-of-variables)
-  - [Generic dual numbers](#generic-dual-numbers)
 - [Motivation](#motivation)
 - [Project goals](#project-goals)
 - [Anticipated features](#anticipated-features)
@@ -129,7 +124,7 @@ to promote most wanted features or to report a bug.
   - multiple
     - [x] static
     - [x] dynamic
-    - [ ] sparse
+    - [x] sparse
   - [ ] Jacobians (efficient layouts in memory to make matrices right away)
 - [ ] Named variables (UUID-based)
 - [ ] Calculation tracking (partial derivatives of intermediate values)
