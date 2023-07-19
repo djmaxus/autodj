@@ -20,7 +20,6 @@ where
         + Mul<V, Output = Self>
         // TODO: consider replacing Mul bound with mul_impl method based on mul_assign
         + PartialEq
-        + PartialOrd
         + Zero,
 {
 }
@@ -49,7 +48,6 @@ where
     Self: Sized
         + Clone
         + PartialEq
-        + PartialOrd
         + Add<Output = Self>
         + Mul<Output = Self>
         + Sub<Output = Self>
