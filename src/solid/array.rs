@@ -3,7 +3,6 @@
 pub use crate::solid::*;
 use num_traits::Zero;
 use std::{
-    borrow::Borrow,
     fmt::LowerExp,
     ops::{Add, AddAssign, Mul, MulAssign, Neg},
 };
@@ -14,7 +13,7 @@ pub struct Grad<V: Value, const N: usize>([V; N]);
 
 impl<V: Value, const N: usize> AsRef<[V; N]> for Grad<V, N> {
     fn as_ref(&self) -> &[V; N] {
-        self.0.borrow()
+        &self.0
     }
 }
 
