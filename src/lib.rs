@@ -39,7 +39,7 @@
 
 pub mod fluid;
 pub mod solid;
-pub use solid::{array, single, vector};
+pub use solid::{array, single, sparse, vector};
 
 #[cfg(test)]
 mod tests;
