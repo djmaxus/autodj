@@ -2,10 +2,7 @@
 
 use crate::fluid::{Dual, Value};
 use num_traits::Zero;
-use std::{
-    borrow::Borrow,
-    ops::{Add, AddAssign, Mul, MulAssign, Neg},
-};
+use std::ops::{Add, AddAssign, Mul, MulAssign, Neg};
 
 /// Newtype wrapper for [`Vec<impl crate::fluid::Value>`].
 /// Should implement [`crate::fluid::Grad`]
@@ -15,7 +12,7 @@ pub struct Grad<V: Value>(Vec<V>);
 
 impl<V: Value> AsRef<Vec<V>> for Grad<V> {
     fn as_ref(&self) -> &Vec<V> {
-        self.0.borrow()
+        &self.0
     }
 }
 

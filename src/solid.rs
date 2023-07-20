@@ -1,7 +1,7 @@
 //! Generic data structure which implements [`Dual`]
 
 use std::{
-    borrow::{Borrow, BorrowMut},
+    borrow::BorrowMut,
     fmt::{Display, LowerExp},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
@@ -127,7 +127,7 @@ where
     type Value = N;
 
     fn value(&self) -> &Self::Value {
-        self.value.borrow()
+        &self.value
     }
 
     fn value_mut(&mut self) -> &mut Self::Value {
@@ -137,7 +137,7 @@ where
     type Grad = D;
 
     fn dual(&self) -> &Self::Grad {
-        self.dual.borrow()
+        &self.dual
     }
 
     fn dual_mut(&mut self) -> &mut Self::Grad {
