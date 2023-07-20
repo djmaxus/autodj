@@ -1,7 +1,6 @@
 //! Implementation of the examples from [`autodiff`] using [`autodj`]
 
 use autodiff::{F, F1};
-use std::borrow::Borrow;
 
 #[test]
 fn quadratic() {
@@ -22,7 +21,7 @@ fn quadratic() {
         x.into_variable().eval(calculate_quadratic)
     };
 
-    assert_eq!(autodj.dual(), autodiff.borrow());
+    assert_eq!(autodj.dual().to_owned(), autodiff);
     println!(
         r#"
 ----------f(x) = (x - 1)^2
