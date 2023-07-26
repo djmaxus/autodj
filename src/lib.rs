@@ -33,7 +33,16 @@
     clippy::missing_docs_in_private_items,
     clippy::redundant_pub_crate,
     clippy::cargo,
-    clippy::disallowed_methods
+    clippy::disallowed_methods,
+    clippy::unwrap_used,
+    clippy::fallible_impl_from,
+    clippy::get_unwrap,
+    clippy::map_unwrap_or,
+    clippy::unnecessary_safety_comment,
+    clippy::unwrap_in_result,
+    clippy::cast_lossless,
+    clippy::indexing_slicing,
+    clippy::trivially_copy_pass_by_ref
 )]
 #![doc = include_str!("../README.md")]
 
