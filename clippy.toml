@@ -1,3 +1,4 @@
 disallowed-methods = [
     { path = "core::option::Option::unwrap", reason = "Handle None cases as an adult god damn it" },
 ]
+allow-unwrap-in-tests = false
