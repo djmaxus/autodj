@@ -102,7 +102,12 @@ pub trait IntoVariables<V: Value>: Into<Vec<V>> {
         };
         for (index, (mut grad, value)) in grads_holder.into_iter().zip(vec.into_iter()).enumerate()
         {
-            grad[index] = V::one();
+            *grad
+                .get_mut(index)
+                // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
+                .unwrap_or_else(|| {
+                    panic!("The index requested here should be valid at this point")
+                }) = V::one();
             result.push(Dual::new(value, grad.into()));
         }
         result

@@ -3,6 +3,7 @@
 pub use crate::solid::*;
 use num_traits::Zero;
 use std::{
+    array::from_fn,
     fmt::LowerExp,
     ops::{Add, AddAssign, Mul, MulAssign, Neg},
 };
@@ -26,7 +27,15 @@ impl<V: Value, const N: usize, Arr: Into<[V; N]>> From<Arr> for Grad<V, N> {
 impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
     fn add_assign(&mut self, rhs: Self) {
         for (index, elem) in self.0.iter_mut().enumerate() {
-            *elem += rhs.0[index];
+            // TODO: consider using unsafe get_unchecked or relax clippy lints
+            // ```
+            // let value = unsafe { rhs.0.get_unchecked(index) }.to_owned();
+            // ```
+            if let Some(&value) = rhs.0.get(index) {
+                *elem += value;
+            } else {
+                panic!("Index {index} should be valid");
+            }
         }
     }
 }
@@ -100,12 +109,23 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
     /// Construct independent variables from array
     fn into_variables(self) -> [DualNumber<V, N>; N] {
         let arr: [V; N] = self.into();
-        let mut holder = [DualNumber::parameter(V::zero()); N];
-        for index in 0..N {
-            *holder[index].value_mut() = arr[index];
-            holder[index].dual_mut().0[index] = V::one();
-        }
-        holder
+        from_fn(|index| {
+            let grad: [V; N] = from_fn(|grad_index| {
+                if grad_index == index {
+                    V::one()
+                } else {
+                    V::zero()
+                }
+            });
+            DualNumber::new(
+                arr.get(index)
+                    // TODO: consider using `unsafe unwrap_unchecked` or relax clippy lints
+                    .unwrap_or_else(|| panic!(r#"This index "{index}" should be valid"#))
+                    // TODO: consider consuming input array `[V; N]` at some point to avoid copies
+                    .to_owned(),
+                Grad(grad),
+            )
+        })
     }
 }
 impl<V: Value, const N: usize, IntoArray> IntoVariables<V, N> for IntoArray where Self: Into<[V; N]> {}
@@ -120,7 +140,12 @@ impl<V: Value + LowerExp, const N: usize> LowerExp for Grad<V, N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "+[")?;
         for index in 1..=N {
-            write!(f, "{:e}", self.0[index - 1])?;
+            let deriv_value = self
+                .0
+                .get(index - 1)
+                // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
+                .unwrap_or_else(|| panic!("The index requested here should always be valid"));
+            write!(f, "{deriv_value:e}")?;
             if index == N {
                 break;
             }
