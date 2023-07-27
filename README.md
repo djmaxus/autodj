@@ -126,7 +126,7 @@ to promote most wanted features or to report a bug.
     - [x] dynamic
     - [x] sparse
   - [ ] Jacobians (efficient layouts in memory to make matrices right away)
-- [ ] Named variables (UUID-based)
+- [x] Named variables (UUID-based)
 - [ ] Calculation tracking (partial derivatives of intermediate values)
 - Third-party crates support (as features)
   - [x] `num-traits`
