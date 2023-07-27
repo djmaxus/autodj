@@ -3,9 +3,9 @@
 mod ideal_gas {
     use autodj::fluid::Dual;
 
-    fn calc_gas_state<D: Dual + From<f64>>([pressure, volume, temperature, moles]: [D; 4]) -> D {
+    fn calc_gas_state<D: Dual<Value = f64>>([pressure, volume, temperature, moles]: [D; 4]) -> D {
         const UGC: f64 = 8.314;
-        pressure * volume - temperature * moles * UGC.into()
+        pressure * volume - temperature * moles * D::parameter(UGC)
     }
 
     const ATM: f64 = 101325.;
