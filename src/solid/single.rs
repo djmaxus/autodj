@@ -1,6 +1,6 @@
 //! [`crate::solid::DualNumber`] for single variable differentiations
 
-pub use crate::solid::*;
+use crate::fluid::{Dual, Value};
 
 /// Uni-variate dual number
 ///

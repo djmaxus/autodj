@@ -1,12 +1,14 @@
 //! [`crate::sparse::DualNumber`] specialization with [`::uuid::Uuid`] as keys to distinguish different variables
 
-pub use super::*;
-use crate::fluid::Dual;
+use crate::{
+    fluid::{Dual, Value},
+    solid::sparse::Grad,
+};
 use ::uuid::Uuid;
 use std::collections::HashMap;
 
 /// Sparse dual number based on [`uuid::Uuid`] keys
-pub type DualNumber<V> = super::DualNumber<V, Uuid>;
+pub type DualNumber<V> = crate::solid::sparse::DualNumber<V, Uuid>;
 
 /// Auto-implemented trait for creating independent variables with sparse gradient
 pub trait IntoVariable: Value {
