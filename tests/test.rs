@@ -91,7 +91,8 @@ mod vector {
         let x = vec![1., 2., 3.];
         let result = sqps(x.clone().into_variables().as_slice());
         println!("f{x:?} ≈ {result:?}");
-        // FIXME: add assertions
+        assert_eq!(result.value(), &17.0);
+        assert_eq!(result.dual().as_ref(), &[2., 4., 6.]);
     }
 
     #[test]
