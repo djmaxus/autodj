@@ -12,7 +12,7 @@ fn quadratic() {
         dfdx.deriv()
     };
 
-    use autodj::single::*;
+    use autodj::prelude::single::*;
     let autodj = {
         fn calculate_quadratic(x: DualF64) -> DualF64 {
             let shift: DualF64 = 1.0.into();
@@ -45,7 +45,7 @@ fn multi_quadratic() {
         [dfdx.deriv(), dfdy.deriv()]
     };
 
-    use autodj::array::*;
+    use autodj::prelude::array::*;
     let autodj = {
         fn calculate_multi_quadratic([x, y]: [DualNumber<f64, 2>; 2]) -> DualNumber<f64, 2> {
             let shift = 1.0.into();
