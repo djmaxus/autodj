@@ -38,8 +38,9 @@ impl<V: Value, G> Grad<V> for G where
 // TODO: implement construction of independent variables here
 // TODO: std::ops::Index(Mut) ? implement/require Iterator?
 // TODO: find ways to reduce boilerplate
-// TODO: implement `eval` methods to sequentially evaluate functions on dual number(s)
-/// Common behavior of dual numbers
+// TODO: implement `eval/map` methods (for IntoVariable output structs asl well)
+// to sequentially evaluate functions on dual number(s)
+/// Fundamental behavior of dual numbers
 ///
 /// NOTE: foreign traits (such as `std::ops::*`) can be implemented for solid structs only.
 /// That's why we have separate implementations down below + trait bounds right below
@@ -87,7 +88,6 @@ where
         Self::new(value, Self::Grad::zero())
     }
 
-    // TODO: use instead of Dual::eval
     /// Chain rule implementation
     /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
     #[must_use]
@@ -216,9 +216,8 @@ where
         Self::new(self.value().to_owned().neg(), self.dual().to_owned().neg())
     }
 
-    // FIXME: replace with properly-defined `chain` method
     /// Evaluate function over a single dual number
-    fn eval<Output, Func>(self, func: Func) -> Output
+    fn map<Output, Func>(self, func: Func) -> Output
     where
         Func: Fn(Self) -> Output,
     {
