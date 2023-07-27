@@ -26,9 +26,6 @@ impl<V: Value, IntoVec: Into<Vec<V>>> From<IntoVec> for Grad<V> {
 pub type DualNumber<V> = crate::solid::DualNumber<V, Grad<V>>;
 
 impl<V: Value> AddAssign for Grad<V> {
-    // BUG: extend resulting vector to have sufficient length
-    // BUG: the same for other binary operations on vector
-    // TODO: introduce nalgebra-based implementations
     fn add_assign(&mut self, rhs: Self) {
         self.0.resize_with(self.0.len().max(rhs.0.len()), V::zero);
         for (to, from) in self.0.iter_mut().zip(rhs.0.into_iter()) {
@@ -180,6 +177,6 @@ mod tests {
     }
 }
 
-// TODO: implement elsewhere
+// TODO: implement in other similar places
 /// Specialization for [`f64`]
 pub type DualF64 = DualNumber<f64>;

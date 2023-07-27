@@ -43,7 +43,7 @@ impl<V: Value, G> Grad<V> for G where
 /// Fundamental behavior of dual numbers
 ///
 /// NOTE: foreign traits (such as `std::ops::*`) can be implemented for solid structs only.
-/// That's why we have separate implementations down below + trait bounds right below
+/// That's why we have separate `*_impl()` functions and trait bounds
 pub trait Dual
 where
     Self: Sized

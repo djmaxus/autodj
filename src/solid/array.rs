@@ -27,7 +27,7 @@ impl<V: Value, const N: usize, Arr: Into<[V; N]>> From<Arr> for Grad<V, N> {
 impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
     fn add_assign(&mut self, rhs: Self) {
         for (index, elem) in self.0.iter_mut().enumerate() {
-            // TODO: consider using unsafe get_unchecked or relax clippy lints
+            // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
             // ```
             // let value = unsafe { rhs.0.get_unchecked(index) }.to_owned();
             // ```
@@ -119,7 +119,7 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
             });
             DualNumber::new(
                 arr.get(index)
-                    // TODO: consider using `unsafe unwrap_unchecked` or relax clippy lints
+                    // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
                     .unwrap_or_else(|| panic!(r#"This index "{index}" should be valid"#))
                     // TODO: consider consuming input array `[V; N]` at some point to avoid copies
                     .to_owned(),
