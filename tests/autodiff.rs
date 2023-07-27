@@ -18,7 +18,7 @@ fn quadratic() {
             let shift: DualF64 = 1.0.into();
             (x - shift).powf(2.0)
         }
-        x.into_variable().eval(calculate_quadratic)
+        x.into_variable().map(calculate_quadratic)
     };
 
     assert_eq!(autodj.dual().to_owned(), autodiff);

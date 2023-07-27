@@ -25,13 +25,13 @@ mod ideal_gas {
 
         let scalar_func = |m| calc_gas_state([pressure, volume, temperature, m]);
 
-        let initial = moles_initial.into_variable().eval(scalar_func);
+        let initial = moles_initial.into_variable().map(scalar_func);
 
         let (f, df) = initial.decompose();
         // newton iteration
         let moles = moles_initial - f / df;
 
-        let state = moles.into_variable().eval(scalar_func);
+        let state = moles.into_variable().map(scalar_func);
 
         println!(
             r#"
