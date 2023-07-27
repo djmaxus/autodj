@@ -38,7 +38,6 @@ fn u_dot<T: Clone>(v: &T) -> T {
     v.clone()
 }
 
-// FIXME: just implement Dual for fluid::Value
 trait RealOps:
     Sub<Output = Self>
     + MulAssign
@@ -173,8 +172,9 @@ where
             break;
         }
 
-        // BUG: I should probably fix dealing with sparse dual components
-        // to ensure consistency
+        // BUG: I should fix converting sparse dual components to Jacobi matrix.
+        // Surprisingly, this works just fine most of the time.
+        // But I should introduce either dense ordered rows or sparse matrix as resulting storage
         let jacobian = M2::<f64>::from_row_iterator(
             residual_dual
                 .iter()
