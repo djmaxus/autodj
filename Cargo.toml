@@ -20,7 +20,6 @@ uuid     = ["dep:uuid"]
 
 [dependencies]
 num-traits = ">=0"
-# auto_ops = ">=0"
 
 [dependencies.uuid]
 version = "1.4.1"
@@ -31,9 +30,12 @@ optional = true
 autodiff = ">=0"
 nalgebra = ">=0"
 
+# [dependencies]
+# auto_ops = ">=0"
+
+## trying to include examples in docs.rs page
 # [package.metadata.docs.rs]
 # cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
-## trying to include examples in docs.rs page
 # [[example]]
 # name = "ideal_gas"
 # crate-type = ["bin"]
