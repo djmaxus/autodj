@@ -5,7 +5,7 @@ use crate::fluid::{Dual, Value};
 /// Uni-variate dual number
 ///
 ///```
-/// use autodj::single::*;
+/// use autodj::prelude::single::*;
 /// let x0 : DualF64 = 1.0.into();
 /// let x  : DualF64 = 3.0.into_variable();
 /// let f = (x - x0).powf(2.0);

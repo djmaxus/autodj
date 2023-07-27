@@ -95,7 +95,7 @@ where
 
 /// For statically-known number of variables
 ///```
-/// use autodj::array::*;
+/// use autodj::prelude::array::*;
 /// let x0 : DualNumber<f64,2> = 1.0.into(); // Parameter
 /// let [x, y] = [2.,3.].into_variables();
 /// let f = (x - x0) * y;
