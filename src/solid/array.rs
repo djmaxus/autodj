@@ -1,10 +1,10 @@
 //! [`crate::array::DualNumber`] for a specific number of variables
 
-pub use crate::solid::*;
+use crate::fluid::{Dual, Value};
 use num_traits::Zero;
 use std::{
     array::from_fn,
-    fmt::LowerExp,
+    fmt::{Display, LowerExp},
     ops::{Add, AddAssign, Mul, MulAssign, Neg},
 };
 

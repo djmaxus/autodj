@@ -6,8 +6,7 @@ use std::{
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-pub use crate::fluid::Dual;
-use crate::fluid::{display_impl, lower_exp_impl, Grad, Value};
+use crate::fluid::{display_impl, lower_exp_impl, Dual, Grad, Value};
 
 /// Default generic [`Dual`] implementor: a struct with two fields
 #[derive(Clone, Debug, PartialEq, PartialOrd, Default, Hash)]

@@ -15,7 +15,7 @@ mod ideal_gas {
 
     #[test]
     fn moles() {
-        use autodj::single::*;
+        use autodj::prelude::single::*;
 
         let pressure = ATM.into();
         let volume = GOLDEN.into();
@@ -49,7 +49,7 @@ Update-------: r({moles}) = {:e}"#,
         let moles_initial = GOLDEN;
         let volume_initial = 1.0;
 
-        use autodj::array::*;
+        use autodj::prelude::array::*;
 
         let vector_func = |&[moles, volume]: &[DualNumber<f64, 2>; 2]| {
             calc_gas_state([pressure, volume, temperature, moles])
@@ -77,7 +77,7 @@ Update-------: r({moles}, {volume}) = {:e}"#,
 
 mod vector {
 
-    use autodj::{fluid::Dual, vector::*};
+    use autodj::prelude::vector::*;
     use std::ops::{Add, Mul};
     #[test]
     fn vector_multiple() {
