@@ -112,44 +112,6 @@ pub trait IntoVariables<V: Value>: Into<Vec<V>> {
 }
 impl<V: Value, IntoVec> IntoVariables<V> for IntoVec where IntoVec: Into<Vec<V>> {}
 
-// impl From<&[f64]> for DualVariables {
-//     fn from(values: &[f64]) -> Self {
-//         Self::new(values)
-//     }
-// }
-
-// impl<'a> Sum<&'a Self> for DualVector {
-//     fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-//         let init = 0.0_f64.into();
-//         let f = |acc, x: &DualVector| acc + x;
-//         iter.fold(init, f)
-//     }
-// }
-
-// impl Sum for DualVector {
-//     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
-//         let init = 0.0_f64.into();
-//         let f = |acc, x| acc + x;
-//         iter.fold(init, f)
-//     }
-// }
-
-// impl<'a> Product<&'a Self> for DualVector {
-//     fn product<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-//         let init = 1.0_f64.into();
-//         let f = |acc, x: &DualVector| acc * x;
-//         iter.fold(init, f)
-//     }
-// }
-
-// impl Product<Self> for DualVector {
-//     fn product<I: Iterator<Item = Self>>(iter: I) -> Self {
-//         let init = 1.0_f64.into();
-//         let f = |acc, x: DualVector| acc * x;
-//         iter.fold(init, f)
-//     }
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
