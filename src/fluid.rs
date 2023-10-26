@@ -91,16 +91,9 @@ where
     /// Chain rule implementation
     /// [`Fn(f64) -> (f64, f64)`] evaluates both function and its derivative
     #[must_use]
-    fn chain<F>(&self, func: F) -> Self
-    where
-        F: Fn(Self::Value) -> (Self::Value, Self::Value),
-    {
-        let (f, df) = func(self.value().to_owned());
-        let dual_new = {
-            let mut dual = self.dual().to_owned();
-            dual *= df;
-            dual
-        };
+    fn chain(&self, func: impl Fn(&Self::Value) -> (Self::Value, Self::Value)) -> Self {
+        let (f, df) = func(self.value());
+        let dual_new = self.dual().clone() * df;
         Self::new(f, dual_new)
     }
 
@@ -108,7 +101,7 @@ where
     #[must_use]
     #[inline]
     fn powf(&self, exp: Self::Value) -> Self {
-        self.chain(|x: Self::Value| (x.powf(exp), x.powf(exp - Self::Value::one()) * exp))
+        self.chain(|x: &Self::Value| (x.powf(exp), x.powf(exp - Self::Value::one()) * exp))
     }
 
     /// Differentiable [`Real::sin`]
@@ -217,10 +210,7 @@ where
     }
 
     /// Evaluate function over a single dual number
-    fn map<Output, Func>(self, func: Func) -> Output
-    where
-        Func: Fn(Self) -> Output,
-    {
+    fn map<Output>(self, func: impl Fn(Self) -> Output) -> Output {
         func(self)
     }
 }
