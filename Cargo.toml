@@ -19,7 +19,7 @@ default  = ["uuid"]
 uuid     = ["dep:uuid"]
 
 [dependencies]
-num-traits = ">=0"
+num-traits = "0.2.16"
 
 [dependencies.uuid]
 version = "1.4.1"
@@ -27,8 +27,8 @@ features = ["v4"]
 optional = true
 
 [dev-dependencies]
-autodiff = ">=0"
-nalgebra = ">=0"
+autodiff = "v0.7.0"
+nalgebra = "0.32.2"
 
 # [dependencies]
 # auto_ops = ">=0"
