@@ -35,7 +35,6 @@ fn u_dot<T>(v: T) -> T {
     v
 }
 
-// FIXME: just implement Dual for fluid::Value
 trait RealOps:
     Sub<Output = Self>
     + MulAssign
