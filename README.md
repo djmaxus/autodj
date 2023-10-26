@@ -1,5 +1,7 @@
 # Automatic Differentiation Library
 
+<!-- FIXME: actualize README -->
+
 [![crates.io](https://img.shields.io/crates/v/autodj.svg)](https://crates.io/crates/autodj)
 [![docs](https://docs.rs/autodj/badge.svg)](https://docs.rs/autodj/)
 ![build](https://github.com/djmaxus/autodj/actions/workflows/rust.yml/badge.svg?branch=master)
@@ -9,6 +11,11 @@
 by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/autodj/issues)
 
 - [Functionality](#functionality)
+  - [Single variables](#single-variables)
+  - [Multiple variables](#multiple-variables)
+    - [Static number of variables](#static-number-of-variables)
+    - [Dynamic number of variables](#dynamic-number-of-variables)
+  - [Generic dual numbers](#generic-dual-numbers)
 - [Motivation](#motivation)
 - [Project goals](#project-goals)
 - [Anticipated features](#anticipated-features)
