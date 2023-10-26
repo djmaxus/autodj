@@ -42,7 +42,7 @@ impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
 
 impl<V: Value, const N: usize> MulAssign<V> for Grad<V, N> {
     fn mul_assign(&mut self, rhs: V) {
-        for elem in self.0.iter_mut() {
+        for elem in &mut self.0 {
             *elem *= rhs;
         }
     }
@@ -72,7 +72,7 @@ impl<V: Value, const N: usize> Neg for Grad<V, N> {
 
     fn neg(self) -> Self::Output {
         let mut out: Self = self;
-        for elem in out.0.iter_mut() {
+        for elem in &mut out.0 {
             *elem = elem.neg();
         }
         out
