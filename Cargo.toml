@@ -27,7 +27,7 @@ features = ["v4"]
 optional = true
 
 [dev-dependencies]
-autodiff = "v0.7.0"
+autodiff = "0.7.0"
 nalgebra = "0.32.2"
 
 # [dependencies]
