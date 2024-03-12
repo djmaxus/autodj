@@ -1,7 +1,8 @@
 #![warn(
     missing_docs,
     unreachable_pub,
-    private_in_public,
+    private_interfaces,
+    private_bounds,
     pub_use_of_private_extern_crate,
     exported_private_dependencies,
     unused,
