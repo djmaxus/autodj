@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "autodj"
-version = "0.4.5-rc.1"
+version = "0.5.0"
 dependencies = [
  "autodiff",
  "nalgebra",
