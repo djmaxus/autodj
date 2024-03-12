@@ -50,6 +50,9 @@
 pub mod fluid;
 pub mod solid;
 
+#[cfg(test)]
+mod tests;
+
 // NOTE: do not use inside the library itself
 /// Set of preludes
 pub mod prelude {
@@ -92,6 +95,3 @@ pub mod prelude {
         pub use crate::solid::sparse::{self, uuid::*};
     }
 }
-
-#[cfg(test)]
-mod tests;
