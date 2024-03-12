@@ -112,6 +112,10 @@ pub trait IntoVariables<V: Value>: Into<Vec<V>> {
 }
 impl<V: Value, IntoVec> IntoVariables<V> for IntoVec where IntoVec: Into<Vec<V>> {}
 
+// TODO: implement in other similar places
+/// Specialization for [`f64`]
+pub type DualF64 = DualNumber<f64>;
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -138,7 +142,3 @@ mod tests {
         assert_eq!(b, Grad(vec![1.5_f64, 3.0_f64, 3.0_f64]));
     }
 }
-
-// TODO: implement in other similar places
-/// Specialization for [`f64`]
-pub type DualF64 = DualNumber<f64>;
