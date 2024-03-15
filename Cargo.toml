@@ -15,8 +15,8 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [features]
-default  = ["uuid"]
-uuid     = ["dep:uuid"]
+default = ["uuid"]
+uuid = ["dep:uuid"]
 
 [dependencies]
 num-traits = "0.2.18"
