@@ -1,9 +1,19 @@
 //! Implementation of the examples from [`autodiff`] using [`autodj`]
+#![allow(
+    missing_docs,
+    clippy::missing_docs_in_private_items,
+    clippy::default_numeric_fallback,
+    clippy::indexing_slicing,
+    clippy::similar_names,
+    clippy::float_cmp
+)]
 
 use autodiff::{F, F1};
 
 #[test]
 fn quadratic() {
+    use autodj::prelude::single::*;
+
     let x: f64 = 0.0;
 
     let autodiff = {
@@ -12,7 +22,6 @@ fn quadratic() {
         dfdx.deriv()
     };
 
-    use autodj::prelude::single::*;
     let autodj = {
         fn calculate_quadratic(x: DualF64) -> DualF64 {
             let shift: DualF64 = 1.0.into();
@@ -22,17 +31,19 @@ fn quadratic() {
     };
 
     assert_eq!(autodj.dual().to_owned(), autodiff);
+
     println!(
         r#"
 ----------f(x) = (x - 1)^2
-autodiff: df/dx = {} at x = {}
-autodj  : f({}) ≈ {}"#,
-        autodiff, x, x, autodj,
+autodiff: df/dx = {autodiff} at x = {x}
+autodj  : f({x}) ≈ {autodj}"#
     );
 }
 
 #[test]
 fn multi_quadratic() {
+    use autodj::prelude::array::*;
+
     let x: f64 = 0.0;
     let y: f64 = 0.0;
 
@@ -45,7 +56,6 @@ fn multi_quadratic() {
         [dfdx.deriv(), dfdy.deriv()]
     };
 
-    use autodj::prelude::array::*;
     let autodj = {
         fn calculate_multi_quadratic([x, y]: [DualNumber<f64, 2>; 2]) -> DualNumber<f64, 2> {
             let shift = 1.0.into();
