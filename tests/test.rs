@@ -1,4 +1,10 @@
 //! Integration tests for [`autodj`]
+#![allow(
+    clippy::default_numeric_fallback,
+    clippy::expect_used,
+    clippy::float_cmp,
+    clippy::indexing_slicing
+)]
 
 mod ideal_gas {
     use autodj::fluid::Dual;
@@ -8,8 +14,8 @@ mod ideal_gas {
         pressure * volume - temperature * moles * D::parameter(UGC)
     }
 
-    const ATM: f64 = 101325.;
-    const GOLDEN: f64 = 1.61803398875;
+    const ATM: f64 = 101_325.;
+    const GOLDEN: f64 = 1.618_033_988_75;
     const KELVIN: f64 = 273.15;
     const BODY: f64 = KELVIN + 36.6;
 
@@ -43,13 +49,16 @@ Update-------: r({moles}) = {:e}"#,
 
     #[test]
     fn moles_volume() {
+        use autodj::prelude::array::*;
+
+        const W: f64 = 1.5;
+        const WEIGHTS: [f64; 2] = [W, 1. - W];
+
         let pressure = ATM.into();
         let temperature = BODY.into();
 
         let moles_initial = GOLDEN;
         let volume_initial = 1.0;
-
-        use autodj::prelude::array::*;
 
         let vector_func = |&[moles, volume]: &[DualNumber<f64, 2>; 2]| {
             calc_gas_state([pressure, volume, temperature, moles])
@@ -58,9 +67,6 @@ Update-------: r({moles}) = {:e}"#,
         let initial = vector_func(&[moles_initial, volume_initial].into_variables());
 
         // Newton-like iteration
-        const W: f64 = 1.5;
-        const WEIGHTS: [f64; 2] = [W, 1. - W];
-
         let moles = moles_initial - WEIGHTS[0] * initial.value() / initial.dual().as_ref()[0];
         let volume = volume_initial - WEIGHTS[1] * initial.value() / initial.dual().as_ref()[1];
 
@@ -100,7 +106,7 @@ mod vector {
         let x = vec![1., 2., 3., 4., 5.];
 
         let reference: f64 = x.iter().sum();
-        println!("f({x:?}) = ∑ x_i = {}", reference);
+        println!("f({x:?}) = ∑ x_i = {reference}");
 
         let result: DualF64 = x
             .clone()
@@ -118,7 +124,7 @@ mod vector {
         let x = vec![1., 2., 3., 4., 5.];
 
         let reference: f64 = x.iter().product();
-        println!("f({x:?}) = ∏ x_i = {}", reference);
+        println!("f({x:?}) = ∏ x_i = {reference}");
 
         let result = x.clone().into_variables().into_iter().reduce(Mul::mul);
         println!("f({x:?}) = {result:?}",);
@@ -152,7 +158,7 @@ mod vector {
         let values: Vec<f64> = vec![2., 3., 5., 8.];
         let variables = values.clone().into_variables();
         let f = shifted_product(variables.as_slice(), 6.).expect("At least two variables");
-        println!("f({:?}) = {:?}", values, f);
+        println!("f({values:?}) = {f:?}");
         assert_eq!(f.value(), &8.);
         assert_eq!(f.dual().as_ref().len(), variables.len());
         assert_eq!(f.dual().as_ref().last(), Some(&0.));

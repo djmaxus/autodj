@@ -1,5 +1,12 @@
+#![allow(
+    missing_docs,
+    clippy::missing_docs_in_private_items,
+    clippy::default_numeric_fallback,
+    clippy::indexing_slicing
+)]
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let kappa = 1.;
+    let kappa = 1.0;
     let x0 = [PI * 0.25, 0.].into_s_vector::<f64>();
     let dt: f64 = 1.0;
     let ode_scheme = OdeScheme::InterMediate(1.0.try_into()?);
@@ -14,12 +21,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let x1 = newton_iterations(calc_residual_time_step, x_approx, 10, 1e-3);
 
-    dbg!(x1);
+    println!("{x1:?}");
 
     Ok(())
 }
 
-use autodj::{fluid::Dual, solid::array::*};
+use autodj::prelude::array::*;
 use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
 use std::{
     error::Error,
@@ -107,7 +114,7 @@ enum OdeScheme {
 }
 
 impl OdeScheme {
-    pub fn approx<T: RealOps>(&self, x: [V2<T>; 2]) -> V2<T> {
+    fn approx<T: RealOps>(&self, x: [V2<T>; 2]) -> V2<T> {
         match self {
             Self::EulerExplicit => x[0],
             Self::EulerImplicit => x[1],
@@ -149,7 +156,7 @@ where
     let tolerance = tolerance.abs();
 
     let mut x = x_approx;
-    let mut error = Option::None;
+    let mut error = None;
 
     for _ in 0..num_iterations {
         let vars = x.into_variables();
