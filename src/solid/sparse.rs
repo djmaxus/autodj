@@ -1,4 +1,5 @@
 //! [`crate::sparse::DualNumber`] based on [`HashMap`] for sparse dual components
+#![cfg(feature = "sparse")]
 
 use crate::solid::Value;
 use std::{
@@ -20,7 +21,7 @@ where
             .and_modify(|existing_value| {
                 *existing_value = op(existing_value.clone(), value.clone());
             })
-            .or_insert(value.to_owned());
+            .or_insert(value.clone());
     }
 }
 
@@ -95,5 +96,4 @@ impl<Key: GradKey, V: Value> AsRef<HashMap<Key, V>> for Grad<Key, V> {
 /// For sparse gradients
 pub type DualNumber<V, Key> = crate::solid::DualNumber<V, Grad<Key, V>>;
 
-#[cfg(feature = "uuid")]
 pub mod uuid;

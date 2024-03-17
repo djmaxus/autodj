@@ -1,4 +1,5 @@
 //! [`crate::sparse::DualNumber`] specialization with [`::uuid::Uuid`] as keys to distinguish different variables
+#![cfg(feature = "uuid")]
 
 use crate::{
     fluid::{Dual, Value},
@@ -16,7 +17,7 @@ pub trait IntoVariable: Value {
     fn into_variable(self) -> DualNumber<Self> {
         let grad_id = Uuid::new_v4();
         let grad_value = Self::one();
-        let grad = HashMap::from([(grad_id, grad_value)]);
+        let grad = [(grad_id, grad_value)].into_iter().collect::<HashMap<_, _>>();
         DualNumber::<Self>::new(self, Grad(grad))
     }
 }

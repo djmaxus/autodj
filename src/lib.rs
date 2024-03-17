@@ -1,4 +1,7 @@
 #![doc = include_str!("../README.md")]
+#![no_std]
+
+extern crate no_std_compat as std;
 
 pub mod fluid;
 pub mod solid;
@@ -42,6 +45,7 @@ pub mod prelude {
     }
 
     /// Prelude for working with [`crate::solid::sparse::uuid::DualNumber`]
+    #[cfg(feature = "uuid")]
     pub mod uuid {
         pub use crate::fluid::{Dual, Grad, Value};
 
