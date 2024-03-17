@@ -1,5 +1,4 @@
 //! [`Dual`] trait as behavior definition
-// TODO: consider supporting no_std
 
 use num_traits::{real::Real, One, Zero};
 use std::{
@@ -156,40 +155,48 @@ where
     /// To further implement [`std::ops::Add`] for structs
     #[must_use]
     fn add_impl(&self, rhs: &Self) -> Self {
-        self.to_owned().add_assign_impl(rhs).to_owned()
+        let mut output = self.clone();
+        let _ = output.add_assign_impl(rhs);
+        output
     }
 
     /// To further implement [`std::ops::Mul`] for structs
     #[must_use]
     fn mul_impl(&self, rhs: &Self) -> Self {
-        self.to_owned().mul_assign_impl(rhs).to_owned()
+        let mut output = self.clone();
+        let _ = output.mul_assign_impl(rhs);
+        output
     }
 
     /// To further implement [`std::ops::Sub`] for structs
     #[must_use]
     fn sub_impl(&self, rhs: &Self) -> Self {
-        self.to_owned().sub_assign_impl(rhs).to_owned()
+        let mut output = self.clone();
+        let _ = output.sub_assign_impl(rhs);
+        output
     }
 
     /// To further implement [`std::ops::Div`] for structs
     #[must_use]
     fn div_impl(&self, rhs: &Self) -> Self {
-        self.to_owned().div_assign_impl(rhs).to_owned()
+        let mut output = self.clone();
+        let _ = output.div_assign_impl(rhs);
+        output
     }
 
     /// To further implement [`std::ops::AddAssign`] for structs
     fn add_assign_impl(&mut self, rhs: &Self) -> &mut Self {
-        *self.value_mut() += rhs.value().to_owned();
-        *self.dual_mut() += rhs.dual().to_owned();
+        *self.value_mut() += *rhs.value();
+        *self.dual_mut() += rhs.dual().clone();
         self
     }
 
     /// To further implement [`std::ops::MulAssign`] for structs
     fn mul_assign_impl(&mut self, rhs: &Self) -> &mut Self {
-        let value_local = self.value().to_owned(); // preserve original value
-        *self.value_mut() *= rhs.value().to_owned();
-        *self.dual_mut() *= rhs.value().to_owned();
-        *self.dual_mut() += rhs.dual().to_owned() * value_local;
+        let value_local = *self.value(); // preserve original value
+        *self.value_mut() *= *rhs.value();
+        *self.dual_mut() *= *rhs.value();
+        *self.dual_mut() += rhs.dual().clone() * value_local;
         self
     }
 
@@ -206,7 +213,7 @@ where
     /// To further implement [`std::ops::Neg`] for structs
     #[must_use]
     fn neg_impl(&self) -> Self {
-        Self::new(self.value().to_owned().neg(), self.dual().to_owned().neg())
+        Self::new(self.value().neg(), self.dual().clone().neg())
     }
 
     /// Evaluate function over a single dual number

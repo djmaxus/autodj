@@ -3,6 +3,7 @@
 use crate::fluid::{Dual, Value};
 use num_traits::Zero;
 use std::ops::{Add, AddAssign, Mul, MulAssign, Neg};
+use std::prelude::v1::*;
 
 /// Newtype wrapper for [`Vec<impl crate::fluid::Value>`].
 /// Should implement [`crate::fluid::Grad`]
