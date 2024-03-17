@@ -15,20 +15,37 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [features]
-default = ["uuid"]
-uuid = ["dep:uuid"]
+default = ["std", "uuid"]
+std = ["num-traits/std", "uuid?/std", "no-std-compat/std"]
+sparse = ["no-std-compat/compat_hash"]
+uuid = ["sparse", "dep:uuid"]
 
-[dependencies]
-num-traits = "0.2.18"
+[dependencies.num-traits]
+version = "0.2.18"
+default-features = false
+features = ["libm"]
+
+[dependencies.no-std-compat]
+version = "0.4.1"
+default-features = false
+features = ["alloc"]
 
 [dependencies.uuid]
 version = "1.7.0"
+default-features = false
 features = ["v4"]
 optional = true
 
 [dev-dependencies]
 autodiff = "0.7.0"
 nalgebra = "0.32.4"
+
+[[example]]
+name = "pendulum_sparse"
+required-features = ["uuid"]
+
+[package.metadata.docs.rs]
+features = ["std", "uuid"]
 
 [lints.rust]
 missing_docs = "warn"
