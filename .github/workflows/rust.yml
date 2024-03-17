@@ -16,9 +16,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --all-features --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --all-features --verbose
     - name: Build documentation
-      run: cargo doc --verbose
+      run: cargo doc --all-features --verbose
+    - name: Run examples
+      run: cargo run --example=pendulum && cargo run --example=pendulum_sparse
+
+    - name: Build no-std version
+      run: cargo build --no-default-features --features=uuid --verbose
+    - name: Test no-std version
+      run: cargo test --no-default-features --features=uuid --verbose
+    - name: Build no-std documentation
+      run: cargo doc --no-default-features --features=uuid --verbose
+    - name: Run examples in no-std mode
+      run: cargo run --example=pendulum --no-default-features && cargo run --example=pendulum_sparse --features=uuid --no-default-features
