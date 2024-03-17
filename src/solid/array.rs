@@ -118,11 +118,9 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
                 }
             });
             DualNumber::new(
-                arr.get(index)
+                *arr.get(index)
                     // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-                    .unwrap_or_else(|| panic!(r#"This index "{index}" should be valid"#))
-                    // TODO: consider consuming input array `[V; N]` at some point to avoid copies
-                    .to_owned(),
+                    .unwrap_or_else(|| panic!(r#"This index "{index}" should be valid"#)),
                 Grad(grad),
             )
         })
