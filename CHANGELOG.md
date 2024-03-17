@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3](https://github.com/djmaxus/autodj/compare/v0.5.2...v0.5.3) - 2024-03-17
+
+### Added
+- :sparkles: Introduce `no_std` support
+
+### Other
+- :construction_worker: Add more CI checks
+- :wrench: lint configs moved `lib.rs` -> `Cargo.toml`
+- :construction_worker: refine `release-plz` automation
+
 ## [0.5.2](https://github.com/djmaxus/autodj/compare/v0.5.1...v0.5.2) - 2024-03-15
 
 ### Other
