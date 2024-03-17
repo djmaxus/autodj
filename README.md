@@ -133,6 +133,7 @@ to promote most wanted features or to report a bug.
 - Third-party crates support (as features)
   - [x] `num-traits`
   - [x] linear algebra crates (`nalgebra` etc.)
+- [x] `no_std` support
 - Advanced features
   - [x] Arbitrary number types beside `f64`
   - [ ] Inter-operability of different dual types (e.g., single and multiple dynamic)
