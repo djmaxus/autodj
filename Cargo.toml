@@ -15,7 +15,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [features]
-default = ["std", "uuid"]
+default = ["std"]
 std = ["num-traits/std", "uuid?/std", "no-std-compat/std"]
 sparse = ["no-std-compat/compat_hash"]
 uuid = ["sparse", "dep:uuid"]
