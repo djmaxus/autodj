@@ -19,6 +19,7 @@ default = ["std", "uuid"]
 std = ["num-traits/std", "uuid?/std", "no-std-compat/std"]
 sparse = ["no-std-compat/compat_hash"]
 uuid = ["sparse", "dep:uuid"]
+prelude = []
 
 [dependencies.num-traits]
 version = "0.2.18"
