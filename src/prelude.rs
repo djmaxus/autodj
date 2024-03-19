@@ -1,4 +1,5 @@
 //!Set of preludes
+#![cfg(feature = "prelude")]
 
 /// Prelude for working with the trait [`crate::fluid::Dual`]
 pub mod fluid {
