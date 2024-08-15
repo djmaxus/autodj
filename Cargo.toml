@@ -21,7 +21,7 @@ sparse = ["no-std-compat/compat_hash"]
 uuid = ["sparse", "dep:uuid"]
 
 [dependencies.num-traits]
-version = "0.2.18"
+version = "0.2.19"
 default-features = false
 features = ["libm"]
 
