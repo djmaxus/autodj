@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4](https://github.com/djmaxus/autodj/compare/v0.5.3...v0.5.4) - 2024-12-02
+
+### Other
+
+- *(deps)* bump uuid from 1.10.0 to 1.11.0
+- *(deps)* bump nalgebra from 0.33.0 to 0.33.2
+- *(deps)* bump num-traits from 0.2.18 to 0.2.19
+- *(deps)* bump uuid from 1.7.0 to 1.10.0
+- *(deps)* bump nalgebra from 0.32.4 to 0.33.0
+- check cargo packages in dependabot
+- *(deps)* bump actions/configure-pages from 4 to 5
+
 ## [0.5.3](https://github.com/djmaxus/autodj/compare/v0.5.2...v0.5.3) - 2024-03-17
 
 ### Added
