@@ -1,6 +1,6 @@
 [package]
 name = "autodj"
-version = "0.5.3"
+version = "0.5.4"
 
 description = "Automatic Differentiation Library"
 authors = [
