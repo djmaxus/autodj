@@ -24,25 +24,25 @@ mod ideal_gas {
     fn moles() {
         use autodj::prelude::single::*;
 
+        const MOLES_INITIAL: f64 = 1.0;
+
         let pressure = ATM.into();
         let volume = GOLDEN.into();
         let temperature = BODY.into();
 
-        let moles_initial = 1.0;
-
         let scalar_func = |m| calc_gas_state([pressure, volume, temperature, m]);
 
-        let initial = moles_initial.into_variable().map(scalar_func);
+        let initial = MOLES_INITIAL.into_variable().map(scalar_func);
 
         let (f, df) = initial.decompose();
         // newton iteration
-        let moles = moles_initial - f / df;
+        let moles = MOLES_INITIAL - f / df;
 
         let state = moles.into_variable().map(scalar_func);
 
         println!(
             r#"
-Initial guess: r({moles_initial}) = {initial}
+Initial guess: r({MOLES_INITIAL}) = {initial}
 Update-------: r({moles}) = {:e}"#,
             state.value()
         );
@@ -54,28 +54,28 @@ Update-------: r({moles}) = {:e}"#,
 
         const W: f64 = 1.5;
         const WEIGHTS: [f64; 2] = [W, 1. - W];
+        const MOLES_INITIAL: f64 = GOLDEN;
 
         let pressure = ATM.into();
         let temperature = BODY.into();
 
-        let moles_initial = GOLDEN;
         let volume_initial = 1.0;
 
         let vector_func = |&[moles, volume]: &[DualNumber<f64, 2>; 2]| {
             calc_gas_state([pressure, volume, temperature, moles])
         };
 
-        let initial = vector_func(&[moles_initial, volume_initial].into_variables());
+        let initial = vector_func(&[MOLES_INITIAL, volume_initial].into_variables());
 
         // Newton-like iteration
-        let moles = moles_initial - WEIGHTS[0] * initial.value() / initial.dual().as_ref()[0];
+        let moles = MOLES_INITIAL - WEIGHTS[0] * initial.value() / initial.dual().as_ref()[0];
         let volume = volume_initial - WEIGHTS[1] * initial.value() / initial.dual().as_ref()[1];
 
         let update = vector_func(&[moles, volume].into_variables());
 
         println!(
             r#"
-Initial guess: r({moles_initial}, {volume_initial}) = {initial:e}
+Initial guess: r({MOLES_INITIAL}, {volume_initial}) = {initial:e}
 Update-------: r({moles}, {volume}) = {:e}"#,
             update.value()
         );
