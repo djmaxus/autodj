@@ -57,11 +57,7 @@ impl<V: Value> Neg for Grad<V> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
-        self.0
-            .into_iter()
-            .map(std::ops::Neg::neg)
-            .collect::<Vec<V>>()
-            .into()
+        self.0.into_iter().map(Neg::neg).collect::<Vec<V>>().into()
     }
 }
 
