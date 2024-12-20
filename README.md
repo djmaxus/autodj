@@ -100,7 +100,8 @@ use autodj::solid::DualNumber;
 ## Motivation
 
 I do both academic & business R&D in the area of computational mathematics.
-As well as many of us, I've written a whole bunch of sophisticated Jacobians _by hand_.
+As well as many of us, I've written a whole bunch of sophisticated Jacobians
+_by hand_.
 
 One day, I learned about automatic differentiation based on dual numbers.
 Almost the same day, I learned about Rust as well :crab:
@@ -112,7 +113,8 @@ Then, I decided to:
 
 ## Project goals
 
-- Develop open-source automatic differentiation library for both _academic_ and _commercial_ computational mathematicians
+- Develop open-source automatic differentiation library
+  for both _academic_ and _commercial_ computational mathematicians
 - Gain experience of Rust programming
 
 ## Anticipated features
