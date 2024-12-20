@@ -17,7 +17,9 @@ pub trait IntoVariable: Value {
     fn into_variable(self) -> DualNumber<Self> {
         let grad_id = Uuid::new_v4();
         let grad_value = Self::one();
-        let grad = [(grad_id, grad_value)].into_iter().collect::<HashMap<_, _>>();
+        let grad = [(grad_id, grad_value)]
+            .into_iter()
+            .collect::<HashMap<_, _>>();
         DualNumber::<Self>::new(self, Grad(grad))
     }
 }
