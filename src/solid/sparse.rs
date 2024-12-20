@@ -1,4 +1,4 @@
-//! [`crate::sparse::DualNumber`] based on [`HashMap`] for sparse dual components
+//! [`crate::solid::DualNumber`] based on [`HashMap`] for sparse dual components
 #![cfg(feature = "sparse")]
 
 use crate::solid::Value;

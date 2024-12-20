@@ -1,4 +1,4 @@
-//! [`crate::array::DualNumber`] for a specific number of variables
+//! [`crate::solid::DualNumber`] for a specific number of variables
 
 use crate::fluid::{Dual, Value};
 use num_traits::Zero;

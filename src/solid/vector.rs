@@ -1,4 +1,4 @@
-//! [`crate::vector::DualNumber`] for dynamic number of variables
+//! [`crate::solid::DualNumber`] for dynamic number of variables
 
 use crate::fluid::{Dual, Value};
 use num_traits::Zero;
