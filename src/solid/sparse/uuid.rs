@@ -1,4 +1,4 @@
-//! [`crate::sparse::DualNumber`] specialization with [`::uuid::Uuid`] as keys to distinguish different variables
+//! [`crate::solid::sparse::DualNumber`] specialization with [`::uuid::Uuid`] as keys to distinguish different variables
 #![cfg(feature = "uuid")]
 
 use crate::{
