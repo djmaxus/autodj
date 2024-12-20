@@ -1,0 +1,19 @@
+on:
+  push:
+    branches: ["master", "develop"]
+  pull_request:
+    branches: ["master", "develop"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          fix: true
+          globs: |
+            **/*.md
+            !CHANGELOG.md
+            !LICENSE-APACHE.md
+            !LICENSE-MIT.md
