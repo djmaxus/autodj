@@ -3,7 +3,8 @@
     clippy::default_numeric_fallback,
     clippy::expect_used,
     clippy::float_cmp,
-    clippy::indexing_slicing
+    clippy::indexing_slicing,
+    reason = "These are integration tests, crate lints might be relaxed outside of the library"
 )]
 
 mod ideal_gas {

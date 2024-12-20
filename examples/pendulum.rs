@@ -1,8 +1,10 @@
+//! Non-linear pendulum simulation
 #![allow(
     missing_docs,
     clippy::missing_docs_in_private_items,
     clippy::default_numeric_fallback,
-    clippy::indexing_slicing
+    clippy::indexing_slicing,
+    reason = "This is an example binary, crate lints might be relaxed outside of the library"
 )]
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -103,7 +105,10 @@ impl TryFrom<f64> for Fraction {
     }
 }
 
-#[allow(unused)]
+#[allow(
+    unused,
+    reason = "This is an example binary, crate lints might be relaxed outside of the library"
+)]
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 enum OdeScheme {
