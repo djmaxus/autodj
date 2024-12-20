@@ -5,7 +5,8 @@
     clippy::default_numeric_fallback,
     clippy::indexing_slicing,
     clippy::similar_names,
-    clippy::float_cmp
+    clippy::float_cmp,
+    reason = "These are integration tests, crate lints might be relaxed outside of the library"
 )]
 
 use autodiff::{F, F1};
