@@ -54,18 +54,18 @@ private_interfaces = "warn"
 private_bounds = "warn"
 pub_use_of_private_extern_crate = "warn"
 exported_private_dependencies = "warn"
-unused = "warn"
+unused = { level = "warn", priority = 1 }
 unused_results = "warn"
 unused_import_braces = "warn"
 unused_lifetimes = "warn"
 unused_qualifications = "warn"
 
 [lints.clippy]
-pedantic = "warn"
-suspicious = "warn"
-perf = "warn"
-style = "warn"
-complexity = "warn"
+pedantic = { level = "warn", priority = 1 }
+suspicious = { level = "warn", priority = 1 }
+perf = { level = "warn", priority = 1 }
+style = { level = "warn", priority = 1 }
+complexity = { level = "warn", priority = 1 }
 type_repetition_in_bounds = "warn"
 allow_attributes_without_reason = "warn"
 as_conversions = "warn"
@@ -80,7 +80,7 @@ impl_trait_in_params = "warn"
 lossy_float_literal = "warn"
 missing_docs_in_private_items = "warn"
 redundant_pub_crate = "warn"
-cargo = "warn"
+cargo = { level = "warn", priority = 1 }
 disallowed_methods = "warn"
 unwrap_used = "warn"
 fallible_impl_from = "warn"
