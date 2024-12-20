@@ -1,0 +1,28 @@
+name: cargo audit
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-audit-${{ hashFiles('**/Cargo.lock') }}
+      - run: |
+          cargo install cargo-audit || true
+          cargo audit -Dwarnings
