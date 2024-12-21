@@ -106,13 +106,15 @@ where
     /// Differentiable [`Real::sin`]
     #[must_use]
     fn sin(&self) -> Self {
-        self.sin_cos().0 // TODO: check if the other tuple member is optimized out
+        let (sin, cos) = self.value().sin_cos();
+        self.chain(|_| (sin, cos))
     }
 
     /// Differentiable [`Real::cos`]
     #[must_use]
     fn cos(&self) -> Self {
-        self.sin_cos().1 // TODO: check if the other tuple member is optimized out
+        let (sin, cos) = self.value().sin_cos();
+        self.chain(|_| (cos, -sin))
     }
 
     /// Differentiable [`Real::sin_cos`]
