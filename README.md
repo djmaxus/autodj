@@ -24,7 +24,8 @@ by [djmaxus](https://djmaxus.github.io/) and [you](https://github.com/djmaxus/au
 ### Single variables
 
 ```rust
-use autodj::prelude::single::*;
+use autodj::fluid::Dual;
+use autodj::solid::single::*;
 
 let x : DualF64 = 2.0.into_variable();
 
@@ -55,7 +56,8 @@ independent variables can be created consistently using `.into_variables()` meth
 #### Static number of variables
 
 ```rust
-use autodj::prelude::array::*;
+use autodj::fluid::Dual;
+use autodj::solid::array::*;
 
 // consistent set of independent variables
 let [x, y] : [DualNumber<f64,2>; 2] = [2.0, 3.0].into_variables();
@@ -70,8 +72,9 @@ assert_eq!(format!("{f}")   , "4+[2.0, 2.0]∆");
 #### Dynamic number of variables
 
 ```rust
-use autodj::prelude::vector::*;
-use std::ops::Add;
+use autodj::fluid::Dual;
+use autodj::solid::vector::*;
+use core::ops::Add;
 
 let x = vec![1., 2., 3., 4., 5.].into_variables();
 

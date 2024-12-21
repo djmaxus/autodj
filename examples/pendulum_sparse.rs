@@ -31,14 +31,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-use autodj::prelude::uuid::*;
-use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
-use std::{
+use autodj::{
+    fluid::Dual,
+    solid::sparse::uuid::{DualNumber, IntoVariable},
+};
+use core::{
     error::Error,
     f64::consts::PI,
     fmt::Debug,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
 };
+use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
 type Dual2 = DualNumber<f64>;
 type V2<T> = SVector<T, 2>;
 type M2<T> = SMatrix<T, 2, 2>;

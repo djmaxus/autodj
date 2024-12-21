@@ -10,10 +10,11 @@
 )]
 
 use autodiff::{F, F1};
+use autodj::fluid::Dual;
 
 #[test]
 fn quadratic() {
-    use autodj::prelude::single::*;
+    use autodj::solid::single::*;
 
     let x: f64 = 0.0;
 
@@ -43,7 +44,7 @@ autodj  : f({x}) ≈ {autodj}"#
 
 #[test]
 fn multi_quadratic() {
-    use autodj::prelude::array::*;
+    use autodj::solid::array::*;
 
     let x: f64 = 0.0;
     let y: f64 = 0.0;

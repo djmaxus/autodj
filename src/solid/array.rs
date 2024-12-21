@@ -1,12 +1,12 @@
 //! [`crate::solid::DualNumber`] for a specific number of variables
 
 use crate::fluid::{Dual, Value};
-use num_traits::Zero;
-use std::{
+use core::{
     array::from_fn,
     fmt::{Display, LowerExp},
     ops::{Add, AddAssign, Mul, MulAssign, Neg},
 };
+use num_traits::Zero;
 
 /// Array of dual components
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -95,7 +95,8 @@ where
 
 /// For statically-known number of variables
 ///```
-/// use autodj::prelude::array::*;
+/// use autodj::fluid::Dual;
+/// use autodj::solid::array::*;
 /// let x0 : DualNumber<f64,2> = 1.0.into(); // Parameter
 /// let [x, y] = [2.,3.].into_variables();
 /// let f = (x - x0) * y;
@@ -129,13 +130,13 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
 impl<V: Value, const N: usize, IntoArray> IntoVariables<V, N> for IntoArray where Self: Into<[V; N]> {}
 
 impl<V: Value, const N: usize> Display for Grad<V, N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "+{:?}", self.0)
     }
 }
 
 impl<V: Value + LowerExp, const N: usize> LowerExp for Grad<V, N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "+[")?;
         for index in 1..=N {
             let deriv_value = self

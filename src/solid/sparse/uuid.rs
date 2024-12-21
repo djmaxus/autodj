@@ -1,6 +1,4 @@
 //! [`crate::solid::sparse::DualNumber`] specialization with [`::uuid::Uuid`] as keys to distinguish different variables
-#![cfg(feature = "uuid")]
-
 use crate::{
     fluid::{Dual, Value},
     solid::sparse::Grad,
