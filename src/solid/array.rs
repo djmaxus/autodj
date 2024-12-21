@@ -26,16 +26,11 @@ impl<V: Value, const N: usize, Arr: Into<[V; N]>> From<Arr> for Grad<V, N> {
 
 impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
     fn add_assign(&mut self, rhs: Self) {
+        debug_assert_eq!(rhs.0.len(), self.0.len());
         for (index, elem) in self.0.iter_mut().enumerate() {
-            // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-            // ```
-            // let value = unsafe { rhs.0.get_unchecked(index) }.to_owned();
-            // ```
-            if let Some(&value) = rhs.0.get(index) {
-                *elem += value;
-            } else {
-                panic!("Index {index} should be valid");
-            }
+            // SAFETY: `Self` (and `self`) are both wrapped arrays of the same length
+            let value = unsafe { rhs.0.get_unchecked(index) }.to_owned();
+            *elem += value;
         }
     }
 }
@@ -118,12 +113,9 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
                     V::zero()
                 }
             });
-            DualNumber::new(
-                *arr.get(index)
-                    // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-                    .unwrap_or_else(|| panic!(r#"This index "{index}" should be valid"#)),
-                Grad(grad),
-            )
+            // SAFETY: input and output arrays are of the same length N
+            debug_assert!((0..N).contains(&index));
+            DualNumber::new(*unsafe { arr.get_unchecked(index) }, Grad(grad))
         })
     }
 }
@@ -139,11 +131,10 @@ impl<V: Value + LowerExp, const N: usize> LowerExp for Grad<V, N> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "+[")?;
         for index in 1..=N {
-            let deriv_value = self
-                .0
-                .get(index - 1)
-                // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-                .unwrap_or_else(|| panic!("The index requested here should always be valid"));
+            // SAFETY (index - 1) in 0..=(N-1) by construction
+            debug_assert!(index >= 1);
+            debug_assert!((index - 1) <= (N - 1));
+            let deriv_value = unsafe { self.0.get_unchecked(index - 1) };
             write!(f, "{deriv_value:e}")?;
             if index == N {
                 break;
