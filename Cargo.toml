@@ -16,7 +16,7 @@ license = "MIT OR Apache-2.0"
 
 [features]
 default = ["std"]
-std = ["num-traits/std","dep:uuid","uuid/std"]
+std = ["num-traits/std", "dep:uuid", "uuid/std"]
 
 [dependencies.num-traits]
 version = "0.2.19"
@@ -99,6 +99,7 @@ missing_crate_level_docs = "warn"
 inherits = "dev"
 opt-level = 0
 debug = 0
+debug-assertions = true
 lto = false
 codegen-units = 16
 incremental = true
