@@ -12,4 +12,3 @@ cargo test --profile=ci --doc --all-features && \
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps --profile=ci --all-features --examples
 
 # TODO no_std tests
-# TODO cargo audit
