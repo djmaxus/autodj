@@ -1,12 +1,24 @@
 //! [`crate::solid::DualNumber`] for a specific number of variables
 
 use crate::fluid::{Dual, Value};
-use num_traits::Zero;
-use std::{
+use core::{
     array::from_fn,
     fmt::{Display, LowerExp},
     ops::{Add, AddAssign, Mul, MulAssign, Neg},
 };
+use num_traits::Zero;
+
+/// For statically-known number of variables
+///```
+/// use autodj::fluid::Dual;
+/// use autodj::solid::array::{DualNumber,IntoVariables};
+/// let x0 : DualNumber<f64,2> = 1.0.into(); // Parameter
+/// let [x, y] = [2.,3.].into_variables();
+/// let f = (x - x0) * y;
+/// assert_eq!(f.value(), &3.);
+/// assert_eq!(f.dual().as_ref().len(), 2);
+/// ```
+pub type DualNumber<V, const N: usize> = crate::solid::DualNumber<V, Grad<V, N>>;
 
 /// Array of dual components
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -26,17 +38,9 @@ impl<V: Value, const N: usize, Arr: Into<[V; N]>> From<Arr> for Grad<V, N> {
 
 impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
     fn add_assign(&mut self, rhs: Self) {
-        for (index, elem) in self.0.iter_mut().enumerate() {
-            // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-            // ```
-            // let value = unsafe { rhs.0.get_unchecked(index) }.to_owned();
-            // ```
-            if let Some(&value) = rhs.0.get(index) {
-                *elem += value;
-            } else {
-                panic!("Index {index} should be valid");
-            }
-        }
+        self.0.iter_mut().zip(rhs.0).for_each(|(elem, value)| {
+            *elem += value;
+        });
     }
 }
 
@@ -93,23 +97,12 @@ where
     }
 }
 
-/// For statically-known number of variables
-///```
-/// use autodj::prelude::array::*;
-/// let x0 : DualNumber<f64,2> = 1.0.into(); // Parameter
-/// let [x, y] = [2.,3.].into_variables();
-/// let f = (x - x0) * y;
-/// assert_eq!(f.value(), &3.);
-/// assert_eq!(f.dual().as_ref().len(), 2);
-/// ```
-pub type DualNumber<V, const N: usize> = crate::solid::DualNumber<V, Grad<V, N>>;
-
 /// Construct independent variables from array
 pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
     /// Construct independent variables from array
     fn into_variables(self) -> [DualNumber<V, N>; N] {
         let arr: [V; N] = self.into();
-        from_fn(|index| {
+        from_fn(move |index| {
             let grad: [V; N] = from_fn(|grad_index| {
                 if grad_index == index {
                     V::one()
@@ -117,38 +110,31 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
                     V::zero()
                 }
             });
-            DualNumber::new(
-                *arr.get(index)
-                    // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-                    .unwrap_or_else(|| panic!(r#"This index "{index}" should be valid"#)),
-                Grad(grad),
-            )
+            // SAFETY: input and output arrays are of the same length N
+            debug_assert!((0..N).contains(&index));
+            DualNumber::new(*unsafe { arr.get_unchecked(index) }, Grad(grad))
         })
     }
 }
 impl<V: Value, const N: usize, IntoArray> IntoVariables<V, N> for IntoArray where Self: Into<[V; N]> {}
 
 impl<V: Value, const N: usize> Display for Grad<V, N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "+{:?}", self.0)
     }
 }
 
 impl<V: Value + LowerExp, const N: usize> LowerExp for Grad<V, N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "+[")?;
-        for index in 1..=N {
-            let deriv_value = self
-                .0
-                .get(index - 1)
-                // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-                .unwrap_or_else(|| panic!("The index requested here should always be valid"));
+        for (index, deriv_value) in self.0.iter().enumerate() {
             write!(f, "{deriv_value:e}")?;
-            if index == N {
-                break;
+            if index == (N - 1) {
+                write!(f, "]")?;
+            } else {
+                write!(f, ", ")?;
             }
-            write!(f, ", ")?;
         }
-        write!(f, "]")
+        Ok(())
     }
 }

@@ -1,10 +1,10 @@
 //! [`Dual`] trait as behavior definition
 
-use num_traits::{real::Real, One, Zero};
-use std::{
+use core::{
     fmt::{Debug, Display, Formatter, LowerExp, Result},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
+use num_traits::{real::Real, One, Zero};
 
 /// An ordinary Value
 pub trait Value: Real + AddAssign + MulAssign + SubAssign + Debug {}
@@ -35,19 +35,18 @@ impl<V: Value, G> Grad<V> for G where
 {
 }
 
-// FIXME: replace some trait bounds with another bounded traits like `NumOps` to write less code
+// FIXME: reduce trait bounds following Rust API Guidelines
 // TODO: implement construction of independent variables here
-// TODO: std::ops::Index(Mut) ? implement/require Iterator?
+// TODO: core::ops::Index(Mut) ? implement/require Iterator?
 // TODO: implement `eval/map` methods (for IntoVariable output structs asl well) to sequentially evaluate functions on dual number(s)
+/* NOTE: foreign traits can be implemented for solid structs only.
+That's why we have separate `*_impl()` functions and trait bounds
+*/
 /// Fundamental behavior of dual numbers
-///
-/// NOTE: foreign traits (such as `std::ops::*`) can be implemented for solid structs only.
-/// That's why we have separate `*_impl()` functions and trait bounds
 pub trait Dual
 where
-    Self: Sized
-        + Clone
-        + PartialEq
+    Self: Sized // FIXME: remove this bound, not fundamental property
+        + Clone // FIXME: remove this bound, not fundamental property
         + Add<Output = Self>
         + Mul<Output = Self>
         + Sub<Output = Self>
@@ -106,13 +105,15 @@ where
     /// Differentiable [`Real::sin`]
     #[must_use]
     fn sin(&self) -> Self {
-        self.sin_cos().0 // TODO: check if the other tuple member is optimized out
+        let (sin, cos) = self.value().sin_cos();
+        self.chain(|_| (sin, cos))
     }
 
     /// Differentiable [`Real::cos`]
     #[must_use]
     fn cos(&self) -> Self {
-        self.sin_cos().1 // TODO: check if the other tuple member is optimized out
+        let (sin, cos) = self.value().sin_cos();
+        self.chain(|_| (cos, -sin))
     }
 
     /// Differentiable [`Real::sin_cos`]
@@ -152,7 +153,7 @@ where
         self.chain(|x| (x.signum(), Self::Value::zero()))
     }
 
-    /// To further implement [`std::ops::Add`] for structs
+    /// To further implement [`core::ops::Add`] for structs
     #[must_use]
     fn add_impl(&self, rhs: &Self) -> Self {
         let mut output = self.clone();
@@ -160,7 +161,7 @@ where
         output
     }
 
-    /// To further implement [`std::ops::Mul`] for structs
+    /// To further implement [`core::ops::Mul`] for structs
     #[must_use]
     fn mul_impl(&self, rhs: &Self) -> Self {
         let mut output = self.clone();
@@ -168,7 +169,7 @@ where
         output
     }
 
-    /// To further implement [`std::ops::Sub`] for structs
+    /// To further implement [`core::ops::Sub`] for structs
     #[must_use]
     fn sub_impl(&self, rhs: &Self) -> Self {
         let mut output = self.clone();
@@ -176,7 +177,7 @@ where
         output
     }
 
-    /// To further implement [`std::ops::Div`] for structs
+    /// To further implement [`core::ops::Div`] for structs
     #[must_use]
     fn div_impl(&self, rhs: &Self) -> Self {
         let mut output = self.clone();
@@ -184,14 +185,14 @@ where
         output
     }
 
-    /// To further implement [`std::ops::AddAssign`] for structs
+    /// To further implement [`core::ops::AddAssign`] for structs
     fn add_assign_impl(&mut self, rhs: &Self) -> &mut Self {
         *self.value_mut() += *rhs.value();
         *self.dual_mut() += rhs.dual().clone();
         self
     }
 
-    /// To further implement [`std::ops::MulAssign`] for structs
+    /// To further implement [`core::ops::MulAssign`] for structs
     fn mul_assign_impl(&mut self, rhs: &Self) -> &mut Self {
         let value_local = *self.value(); // preserve original value
         *self.value_mut() *= *rhs.value();
@@ -200,17 +201,17 @@ where
         self
     }
 
-    /// To further implement [`std::ops::SubAssign`] for structs
+    /// To further implement [`core::ops::SubAssign`] for structs
     fn sub_assign_impl(&mut self, rhs: &Self) -> &mut Self {
         self.add_assign_impl(&rhs.neg_impl())
     }
 
-    /// To further implement [`std::ops::DivAssign`] for structs
+    /// To further implement [`core::ops::DivAssign`] for structs
     fn div_assign_impl(&mut self, rhs: &Self) -> &mut Self {
         self.mul_assign_impl(&rhs.recip())
     }
 
-    /// To further implement [`std::ops::Neg`] for structs
+    /// To further implement [`core::ops::Neg`] for structs
     #[must_use]
     fn neg_impl(&self) -> Self {
         Self::new(self.value().neg(), self.dual().clone().neg())

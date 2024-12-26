@@ -15,21 +15,13 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [features]
-default = ["std","prelude"]
-std = ["num-traits/std", "uuid?/std", "no-std-compat/std"] #FIXME: make mod fluid no_std instead
-sparse = ["no-std-compat/compat_hash"]
-uuid = ["sparse", "dep:uuid"]
-prelude = []
+default = ["std"]
+std = ["num-traits/std", "dep:uuid", "uuid/std"]
 
 [dependencies.num-traits]
 version = "0.2.19"
 default-features = false
 features = ["libm"]
-
-[dependencies.no-std-compat] #WARNING: old stale dependency, remove
-version = "0.4.1"
-default-features = false
-features = ["alloc"]
 
 [dependencies.uuid]
 version = "1.11.0"
@@ -41,9 +33,13 @@ optional = true
 autodiff = "0.7.0"
 nalgebra = "0.33.2"
 
+[[test]]
+name = "test"
+required-features = ["std"]
+
 [[example]]
 name = "pendulum_sparse"
-required-features = ["uuid"]
+required-features = ["std"]
 
 [package.metadata.docs.rs]
 all-features = true
@@ -92,6 +88,7 @@ unwrap_in_result = "warn"
 cast_lossless = "warn"
 indexing_slicing = "warn"
 trivially_copy_pass_by_ref = "warn"
+let_unit_value = "warn"
 
 [lints.rustdoc]
 private_doc_tests = "warn"
@@ -103,11 +100,11 @@ missing_crate_level_docs = "warn"
 inherits = "dev"
 opt-level = 0
 debug = 0
+debug-assertions = true
 lto = false
 codegen-units = 16
 incremental = true
 panic = 'abort'
-
 
 # [dependencies]
 # auto_ops = ">=0"

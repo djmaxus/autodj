@@ -1,12 +1,11 @@
 //! [`crate::solid::DualNumber`] based on [`HashMap`] for sparse dual components
-#![cfg(feature = "sparse")]
-
+#![cfg(feature = "std")]
 use crate::solid::Value;
-use std::{
-    collections::HashMap,
+use core::{
     hash::Hash,
     ops::{Add, MulAssign},
 };
+use std::collections::HashMap;
 
 /// Merge two maps. For common keys, merge values using given binary operation
 fn merge_assign<K, V, F>(map1: &mut HashMap<K, V>, map2: &HashMap<K, V>, op: F)
@@ -53,7 +52,7 @@ impl<Key: GradKey, V: Value> Add for Grad<Key, V> {
     }
 }
 
-impl<Key: GradKey, V: Value> std::ops::Mul<V> for Grad<Key, V> {
+impl<Key: GradKey, V: Value> core::ops::Mul<V> for Grad<Key, V> {
     type Output = Self;
 
     fn mul(self, rhs: V) -> Self::Output {
@@ -69,7 +68,7 @@ impl<Key: GradKey, V: Value> MulAssign<V> for Grad<Key, V> {
     }
 }
 
-impl<Key: GradKey, V: Value> std::ops::Neg for Grad<Key, V> {
+impl<Key: GradKey, V: Value> core::ops::Neg for Grad<Key, V> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -79,7 +78,7 @@ impl<Key: GradKey, V: Value> std::ops::Neg for Grad<Key, V> {
     }
 }
 
-impl<Key: GradKey, V: Value> std::ops::AddAssign for Grad<Key, V> {
+impl<Key: GradKey, V: Value> core::ops::AddAssign for Grad<Key, V> {
     fn add_assign(&mut self, rhs: Self) {
         merge_assign(&mut self.0, &rhs.0, Add::add);
     }

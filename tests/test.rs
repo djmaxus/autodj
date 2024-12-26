@@ -22,7 +22,7 @@ mod ideal_gas {
 
     #[test]
     fn moles() {
-        use autodj::prelude::single::*;
+        use autodj::solid::single::*;
 
         const MOLES_INITIAL: f64 = 1.0;
 
@@ -50,7 +50,7 @@ Update-------: r({moles}) = {:e}"#,
 
     #[test]
     fn moles_volume() {
-        use autodj::prelude::array::*;
+        use autodj::solid::array::*;
 
         const W: f64 = 1.5;
         const WEIGHTS: [f64; 2] = [W, 1. - W];
@@ -84,8 +84,8 @@ Update-------: r({moles}, {volume}) = {:e}"#,
 
 mod vector {
 
-    use autodj::prelude::vector::*;
-    use std::ops::{Add, Mul};
+    use autodj::{fluid::Dual, solid::vector::*};
+    use core::ops::{Add, Mul};
     #[test]
     fn vector_multiple() {
         fn sqps(x: &[DualF64]) -> DualF64 {
@@ -174,5 +174,15 @@ mod vector {
         let (f, df) = (x.div_impl(y)).decompose();
         assert_eq!(df.as_ref(), &[0.5, -0.25]);
         assert_eq!(f, 0.5);
+    }
+}
+
+mod array {
+    #[test]
+    fn zero_sized_grad() {
+        use autodj::fluid::Dual;
+        let scalar = autodj::solid::array::DualNumber::<f64, 0>::new(1.0, [].into());
+        let grad_len = scalar.dual().as_ref().len();
+        assert_eq!(grad_len, 0);
     }
 }

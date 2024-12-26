@@ -23,6 +23,4 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-audit-${{ hashFiles('**/Cargo.lock') }}
-      - run: |
-          cargo install cargo-audit || true
-          cargo audit -Dwarnings
+      - run: /bin/sh ./audit.sh

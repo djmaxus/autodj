@@ -1,6 +1,6 @@
 //! Generic data structure which implements [`Dual`]
 
-use std::{
+use core::{
     borrow::BorrowMut,
     fmt::{Display, LowerExp},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
@@ -159,13 +159,13 @@ impl<V: Value, G: Grad<V>> From<V> for DualNumber<V, G> {
 }
 
 impl<V: Value + Display, G: Grad<V> + Display> Display for DualNumber<V, G> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         display_impl(self, f)
     }
 }
 
 impl<V: Value + LowerExp, G: Grad<V> + LowerExp> LowerExp for DualNumber<V, G> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         lower_exp_impl(self, f)
     }
 }

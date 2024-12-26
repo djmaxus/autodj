@@ -1,9 +1,9 @@
 //! [`crate::solid::DualNumber`] for dynamic number of variables
+#![cfg(feature = "std")]
 
 use crate::fluid::{Dual, Value};
+use core::ops::{Add, AddAssign, Mul, MulAssign, Neg};
 use num_traits::Zero;
-use std::ops::{Add, AddAssign, Mul, MulAssign, Neg};
-use std::prelude::v1::*;
 
 /// Newtype wrapper for [`Vec<impl crate::fluid::Value>`].
 /// Should implement [`crate::fluid::Grad`]
@@ -94,15 +94,14 @@ pub trait IntoVariables<V: Value>: Into<Vec<V>> {
             let grad_holder = vec![V::zero(); len];
             vec![grad_holder; len]
         };
-        for (index, (mut grad, value)) in grads_holder.into_iter().zip(vec.into_iter()).enumerate()
+
+        for (index, (mut grad_holder, value)) in
+            grads_holder.into_iter().zip(vec.into_iter()).enumerate()
         {
-            *grad
-                .get_mut(index)
-                // TODO: consider using `unsafe get_unchecked()` or relax clippy lints
-                .unwrap_or_else(|| {
-                    panic!("The index requested here should be valid at this point")
-                }) = V::one();
-            result.push(Dual::new(value, grad.into()));
+            // SAFETY: `grad_holder.len() == vec.len()` by construction
+            debug_assert_eq!(grad_holder.len(), len);
+            unsafe { grad_holder.get_unchecked_mut(index) }.set_one();
+            result.push(Dual::new(value, grad_holder.into()));
         }
         result
     }

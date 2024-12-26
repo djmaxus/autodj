@@ -1,9 +1,5 @@
 #![doc = include_str!("../README.md")]
-#![no_std]
-
-extern crate no_std_compat as std;
-
-pub mod prelude; // NOTE: do not use inside the library itself
+#![cfg_attr(not(feature = "std"), no_std)]
 
 pub mod fluid;
 pub mod solid;
