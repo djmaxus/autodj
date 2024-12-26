@@ -8,6 +8,18 @@ use core::{
 };
 use num_traits::Zero;
 
+/// For statically-known number of variables
+///```
+/// use autodj::fluid::Dual;
+/// use autodj::solid::array::{DualNumber,IntoVariables};
+/// let x0 : DualNumber<f64,2> = 1.0.into(); // Parameter
+/// let [x, y] = [2.,3.].into_variables();
+/// let f = (x - x0) * y;
+/// assert_eq!(f.value(), &3.);
+/// assert_eq!(f.dual().as_ref().len(), 2);
+/// ```
+pub type DualNumber<V, const N: usize> = crate::solid::DualNumber<V, Grad<V, N>>;
+
 /// Array of dual components
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct Grad<V: Value, const N: usize>([V; N]);
@@ -26,12 +38,9 @@ impl<V: Value, const N: usize, Arr: Into<[V; N]>> From<Arr> for Grad<V, N> {
 
 impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
     fn add_assign(&mut self, rhs: Self) {
-        debug_assert_eq!(rhs.0.len(), self.0.len());
-        for (index, elem) in self.0.iter_mut().enumerate() {
-            // SAFETY: `Self` (and `self`) are both wrapped arrays of the same length
-            let value = unsafe { rhs.0.get_unchecked(index) }.to_owned();
+        self.0.iter_mut().zip(rhs.0).for_each(|(elem, value)| {
             *elem += value;
-        }
+        });
     }
 }
 
@@ -88,24 +97,12 @@ where
     }
 }
 
-/// For statically-known number of variables
-///```
-/// use autodj::fluid::Dual;
-/// use autodj::solid::array::*;
-/// let x0 : DualNumber<f64,2> = 1.0.into(); // Parameter
-/// let [x, y] = [2.,3.].into_variables();
-/// let f = (x - x0) * y;
-/// assert_eq!(f.value(), &3.);
-/// assert_eq!(f.dual().as_ref().len(), 2);
-/// ```
-pub type DualNumber<V, const N: usize> = crate::solid::DualNumber<V, Grad<V, N>>;
-
 /// Construct independent variables from array
 pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
     /// Construct independent variables from array
     fn into_variables(self) -> [DualNumber<V, N>; N] {
         let arr: [V; N] = self.into();
-        from_fn(|index| {
+        from_fn(move |index| {
             let grad: [V; N] = from_fn(|grad_index| {
                 if grad_index == index {
                     V::one()
@@ -130,17 +127,14 @@ impl<V: Value, const N: usize> Display for Grad<V, N> {
 impl<V: Value + LowerExp, const N: usize> LowerExp for Grad<V, N> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "+[")?;
-        for index in 1..=N {
-            // SAFETY (index - 1) in 0..=(N-1) by construction
-            debug_assert!(index >= 1);
-            debug_assert!((index - 1) <= (N - 1));
-            let deriv_value = unsafe { self.0.get_unchecked(index - 1) };
+        for (index, deriv_value) in self.0.iter().enumerate() {
             write!(f, "{deriv_value:e}")?;
-            if index == N {
-                break;
+            if index == (N - 1) {
+                write!(f, "]")?;
+            } else {
+                write!(f, ", ")?;
             }
-            write!(f, ", ")?;
         }
-        write!(f, "]")
+        Ok(())
     }
 }

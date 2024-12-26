@@ -35,7 +35,7 @@ impl<V: Value, G> Grad<V> for G where
 {
 }
 
-// FIXME: replace some trait bounds with another bounded traits like `NumOps` to write less code
+// FIXME: reduce trait bounds following the API best practices
 // TODO: implement construction of independent variables here
 // TODO: core::ops::Index(Mut) ? implement/require Iterator?
 // TODO: implement `eval/map` methods (for IntoVariable output structs asl well) to sequentially evaluate functions on dual number(s)

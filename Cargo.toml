@@ -88,6 +88,7 @@ unwrap_in_result = "warn"
 cast_lossless = "warn"
 indexing_slicing = "warn"
 trivially_copy_pass_by_ref = "warn"
+let_unit_value = "warn"
 
 [lints.rustdoc]
 private_doc_tests = "warn"

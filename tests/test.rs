@@ -176,3 +176,13 @@ mod vector {
         assert_eq!(f, 0.5);
     }
 }
+
+mod array {
+    #[test]
+    fn zero_sized_grad() {
+        use autodj::fluid::Dual;
+        let scalar = autodj::solid::array::DualNumber::<f64, 0>::new(1.0, [].into());
+        let grad_len = scalar.dual().as_ref().len();
+        assert_eq!(grad_len, 0);
+    }
+}
