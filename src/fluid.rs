@@ -35,19 +35,18 @@ impl<V: Value, G> Grad<V> for G where
 {
 }
 
-// FIXME: reduce trait bounds following the API best practices
+// FIXME: reduce trait bounds following Rust API Guidelines
 // TODO: implement construction of independent variables here
 // TODO: core::ops::Index(Mut) ? implement/require Iterator?
 // TODO: implement `eval/map` methods (for IntoVariable output structs asl well) to sequentially evaluate functions on dual number(s)
+/* NOTE: foreign traits can be implemented for solid structs only.
+That's why we have separate `*_impl()` functions and trait bounds
+*/
 /// Fundamental behavior of dual numbers
-///
-/// NOTE: foreign traits (such as `core::ops::*`) can be implemented for solid structs only.
-/// That's why we have separate `*_impl()` functions and trait bounds
 pub trait Dual
 where
-    Self: Sized
-        + Clone
-        + PartialEq
+    Self: Sized // FIXME: remove this bound, not fundamental property
+        + Clone // FIXME: remove this bound, not fundamental property
         + Add<Output = Self>
         + Mul<Output = Self>
         + Sub<Output = Self>
