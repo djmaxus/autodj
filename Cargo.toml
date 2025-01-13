@@ -32,7 +32,7 @@ default-features = false
 features = ["alloc"]
 
 [dependencies.uuid]
-version = "1.11.0"
+version = "1.11.1"
 default-features = false
 features = ["v4"]
 optional = true
