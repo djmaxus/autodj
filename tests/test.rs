@@ -41,9 +41,9 @@ mod ideal_gas {
         let state = moles.into_variable().map(scalar_func);
 
         println!(
-            r#"
+            r"
 Initial guess: r({MOLES_INITIAL}) = {initial}
-Update-------: r({moles}) = {:e}"#,
+Update-------: r({moles}) = {:e}",
             state.value()
         );
     }
@@ -74,9 +74,9 @@ Update-------: r({moles}) = {:e}"#,
         let update = vector_func(&[moles, volume].into_variables());
 
         println!(
-            r#"
+            r"
 Initial guess: r({MOLES_INITIAL}, {volume_initial}) = {initial:e}
-Update-------: r({moles}, {volume}) = {:e}"#,
+Update-------: r({moles}, {volume}) = {:e}",
             update.value()
         );
     }

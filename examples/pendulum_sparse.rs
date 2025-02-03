@@ -180,7 +180,7 @@ where
 
         error = Some(residual.norm());
 
-        if error.map_or(false, |error| error <= tolerance) {
+        if error.is_some_and(|error| error <= tolerance) {
             break;
         }
 

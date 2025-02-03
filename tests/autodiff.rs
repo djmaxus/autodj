@@ -34,10 +34,10 @@ fn quadratic() {
     assert_eq!(autodj.dual().to_owned(), autodiff);
 
     println!(
-        r#"
+        r"
 ----------f(x) = (x - 1)^2
 autodiff: df/dx = {autodiff} at x = {x}
-autodj  : f({x}) ≈ {autodj}"#
+autodj  : f({x}) ≈ {autodj}"
     );
 }
 
@@ -68,10 +68,10 @@ fn multi_quadratic() {
     assert_eq!(autodj.dual().as_ref(), &autodiff);
 
     println!(
-        r#"
+        r"
 ----------f(x,y) = (x - 1) * (2 * y - 1)
 autodiff: df/dx = {} and df/dy = {} at x = {}, y = {}
-autodj  : f({:?}) ≈ {}"#,
+autodj  : f({:?}) ≈ {}",
         autodiff[0],
         autodiff[1],
         x,
