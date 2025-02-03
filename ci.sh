@@ -1,6 +1,6 @@
 cargo --version
 
-cargo install cargo-nextest
+cargo install --locked cargo-nextest
 cargo install --locked cargo-outdated --features vendored-openssl
 
 cargo outdated --exit-code 1 && \
