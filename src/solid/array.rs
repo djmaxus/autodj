@@ -38,9 +38,12 @@ impl<V: Value, const N: usize, Arr: Into<[V; N]>> From<Arr> for Grad<V, N> {
 
 impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
     fn add_assign(&mut self, rhs: Self) {
-        self.0.iter_mut().zip(rhs.0).for_each(|(elem, value)| {
-            *elem += value;
-        });
+        for (index, elem) in self.0.iter_mut().enumerate() {
+            match rhs.0.get(index) {
+                Some(&value) => *elem += value,
+                None => unreachable!(),
+            };
+        }
     }
 }
 
@@ -110,9 +113,11 @@ pub trait IntoVariables<V: Value, const N: usize>: Into<[V; N]> {
                     V::zero()
                 }
             });
-            // SAFETY: input and output arrays are of the same length N
-            debug_assert!((0..N).contains(&index));
-            DualNumber::new(*unsafe { arr.get_unchecked(index) }, Grad(grad))
+            DualNumber::new(
+                *arr.get(index)
+                    .unwrap_or_else(|| unreachable!(r#"This index "{index}" should be valid"#)),
+                Grad(grad),
+            )
         })
     }
 }
@@ -127,7 +132,13 @@ impl<V: Value, const N: usize> Display for Grad<V, N> {
 impl<V: Value + LowerExp, const N: usize> LowerExp for Grad<V, N> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "+[")?;
-        for (index, deriv_value) in self.0.iter().enumerate() {
+        for index in 1..=N {
+            let deriv_value = self.0.get(index - 1).unwrap_or_else(|| {
+                unreachable!(
+                    "The index {} requested here should always be valid",
+                    index - 1
+                )
+            });
             write!(f, "{deriv_value:e}")?;
             if index == (N - 1) {
                 write!(f, "]")?;

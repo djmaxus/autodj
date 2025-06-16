@@ -98,10 +98,10 @@ pub trait IntoVariables<V: Value>: Into<Vec<V>> {
         for (index, (mut grad_holder, value)) in
             grads_holder.into_iter().zip(vec.into_iter()).enumerate()
         {
-            // SAFETY: `grad_holder.len() == vec.len()` by construction
-            debug_assert_eq!(grad_holder.len(), len);
-            unsafe { grad_holder.get_unchecked_mut(index) }.set_one();
-            result.push(Dual::new(value, grad_holder.into()));
+            *grad.get_mut(index).unwrap_or_else(|| {
+                unreachable!("The index {index} requested here should be valid")
+            }) = V::one();
+            result.push(Dual::new(value, grad.into()));
         }
         result
     }
