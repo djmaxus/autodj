@@ -109,7 +109,7 @@ impl TryFrom<f64> for Fraction {
     unused,
     reason = "This is an example binary, crate lints might be relaxed outside of the library"
 )]
-#[non_exhaustive]
+// #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 enum OdeScheme {
     EulerExplicit,
@@ -177,7 +177,7 @@ where
 
         error = Some(residual.norm());
 
-        if error.is_some_and(|error| error <= tolerance) {
+        if error.expect("Value should exist inside `for` loop") <= tolerance {
             break;
         }
 

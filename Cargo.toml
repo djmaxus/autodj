@@ -11,7 +11,7 @@ categories = ["mathematics", "science", "simulation"]
 keywords = ["automatic", "derivative", "jacobian", "dual-number", "comp-math"]
 repository = "https://github.com/djmaxus/autodj"
 
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
 
 [features]
@@ -47,6 +47,7 @@ required-features = ["uuid"]
 
 [package.metadata.docs.rs]
 all-features = true
+cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]
 
 [lints.rust]
 missing_docs = "warn"
@@ -108,17 +109,5 @@ codegen-units = 16
 incremental = true
 panic = 'abort'
 
-
 # [dependencies]
 # auto_ops = ">=0"
-
-## trying to include examples in docs.rs page
-# [package.metadata.docs.rs]
-# cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples=examples"]
-# [[example]]
-# name = "ideal_gas"
-# crate-type = ["bin"]
-# doc = true
-# rustdoc-args = ["--scrape-examples"]
-# [package.metadata.docs.rs.examples]
-# "ideal_gas" = { path = "examples/ideal_gas.rs" }

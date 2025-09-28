@@ -34,7 +34,7 @@ impl<V: Value, const N: usize> AddAssign for Grad<V, N> {
             if let Some(&value) = rhs.0.get(index) {
                 *elem += value;
             } else {
-                panic!("Index {index} should be valid");
+                unreachable!("Index {index} should be valid");
             }
         }
     }
