@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 use autodj::prelude::array::*;
-use nalgebra::{base::Scalar, vector, ArrayStorage, SMatrix, SVector};
+use nalgebra::{ArrayStorage, SMatrix, SVector, base::Scalar, vector};
 use std::{
     error::Error,
     f64::consts::PI,
@@ -177,7 +177,7 @@ where
 
         error = Some(residual.norm());
 
-        if error.expect("Value should exist inside `for` loop") <= tolerance {
+        if error? <= tolerance {
             break;
         }
 
