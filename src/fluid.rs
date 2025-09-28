@@ -1,6 +1,6 @@
 //! [`Dual`] trait as behavior definition
 
-use num_traits::{real::Real, One, Zero};
+use num_traits::{One, Zero, real::Real};
 use std::{
     fmt::{Debug, Display, Formatter, LowerExp, Result},
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
@@ -39,6 +39,32 @@ impl<V: Value, G> Grad<V> for G where
 // TODO: implement construction of independent variables here
 // TODO: std::ops::Index(Mut) ? implement/require Iterator?
 // TODO: implement `eval/map` methods (for IntoVariable output structs asl well) to sequentially evaluate functions on dual number(s)
+/* NOTE: how to make private trait bound
+```rust
+pub mod lib {
+    trait MyTraitInner<Item> {
+        type Iter: Iterator<Item = Item>;
+        fn get_item(&mut self) -> Item;
+    }
+
+    #[allow(private_bounds)]
+    pub trait MyTrait: MyTraitInner<Self::Item> {
+        type Item;
+    }
+}
+
+// Doesn't compile.
+fn test1<T: lib::MyTrait>(iter: T::Iter) {
+    todo!()
+}
+
+// Doesn't compile.
+fn test2<T: lib::MyTrait>(mut a: T) {
+    a.get_item();
+}
+```
+*/
+
 /// Fundamental behavior of dual numbers
 ///
 /// NOTE: foreign traits (such as `std::ops::*`) can be implemented for solid structs only.
